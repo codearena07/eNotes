@@ -1,0 +1,2777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eNotes</title>
+  <link rel="shortcut icon" href="img1.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --background: #111827;
+      --card-bg: #1a2234;
+      --border-color: #2a3349;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --danger: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Header Styles */
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.8rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid #2d3748;
+    }
+
+    .logo {
+      color: var(--primary);
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    /* Main Content Styles */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.5rem;
+    }
+
+    /* Tab Navigation */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab {
+      padding: 0.5rem;
+      text-align: center;
+      background-color: var(--card-bg);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Card Styles */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+      border: 1px solid #2d3748;
+      max-width: 100%;
+    }
+
+    .card-header {
+      padding: 0.6rem;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .card-content {
+      padding: 0.6rem;
+    }
+
+    .card-footer {
+      padding: 0.6rem;
+      border-top: 1px solid #2d3748;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Form Elements */
+    input, textarea {
+      width: 100%;
+      padding: 0.6rem;
+      background-color: var(--border-color);
+      border: 1px solid #4a5568;
+      border-radius: 0.375rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    input:focus, textarea:focus {
+      outline: 2px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Button Styles */
+    .btn {
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.375rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s, transform 0.2s;
+      align-self: center;
+      justify-self: center;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-icon {
+      width: 1.8rem;
+      height: 1.8rem;
+      padding: 0;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    /* Grid Layouts */
+    .grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    /* Modified grid layouts for more compact display */
+    .grid-cols-1 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 640px) {
+      .grid-cols-2 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .grid-cols-3 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Notebook Styles */
+    .notebook {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .notebook-title {
+      margin-right: 1.5rem;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .notebook-count {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    /* Note Styles */
+    .note {
+      position: relative;
+      padding-top: 1.8rem;
+    }
+
+    .note-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.85rem;
+    }
+
+    .note-timestamp {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .note-actions {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    /* Back Button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    /* Upload Button */
+    .upload-btn {
+      width: 100%;
+      height: 5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .upload-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Image Gallery */
+    .image-card img {
+      width: 100%;
+      height: 8rem; /* Reduced height for more compact display */
+      object-fit: cover;
+      background-color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4a5568;
+      cursor: pointer;
+    }
+
+    /* Locked Notes */
+    .password-input {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    /* Checklist Styles */
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      padding: 0.4rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 0.375rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: transparent;
+      border: 2px solid #fff;
+      border-radius: 0.25rem;
+      position: relative;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .checklist-item input[type="checkbox"]:checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .checklist-item input[type="checkbox"]:checked::after {
+      content: "✓";
+      position: absolute;
+      top: -0.125rem;
+      left: 0.2rem;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .checklist-item span {
+      flex: 1;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+
+    .modal {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      width: 90%;
+      max-width: 500px;
+      padding: 1.2rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    /* Fullscreen Image Viewer */
+    .fullscreen-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fullscreen-image img {
+      max-width: 90%;
+      max-height: 80vh;
+      object-fit: contain;
+    }
+
+    .fullscreen-image-info {
+      color: white;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .fullscreen-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      font-size: 1.3rem;
+    }
+
+    /* Backup/Import Buttons */
+    .backup-import-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .backup-btn, .import-btn {
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .backup-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .backup-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .import-btn {
+      background-color: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--text-secondary);
+    }
+
+    .import-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .import-input {
+      display: none;
+    }
+
+    /* Truncated Text */
+    .truncated-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
+      font-size: 0.8rem;
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .mt-4 {
+      margin-top: 0.75rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 0.75rem;
+    }
+
+    .ml-2 {
+      margin-left: 0.4rem;
+    }
+
+    .mr-2 {
+      margin-right: 0.4rem;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .absolute {
+      position: absolute;
+    }
+
+    .top-2 {
+      top: 0.4rem;
+    }
+
+    .right-2 {
+      right: 0.4rem;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      display: none;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    .loading-text {
+      color: white;
+      font-size: 1rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Progress bar for image upload */
+    .progress-container {
+      width: 100%;
+      background-color: var(--border-color);
+      border-radius: 0.25rem;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 0.5rem;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Debug panel */
+    .debug-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing data, please wait...</div>
+    <div class="progress-container" style="width: 80%; max-width: 300px; margin-top: 1rem; display: none;">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- Debug Panel (hidden by default) -->
+  <div id="debug-panel" class="debug-panel"></div>
+
+  <!-- Backup/Import Buttons -->
+  <div class="backup-import-container">
+    <button id="backup-data" class="backup-btn" style="margin: 1%;">
+      <i class="fas fa-download"></i>Backup
+    </button>
+    <div style="margin: 1%;">
+      <input type="file" id="import-input" class="import-input" accept=".json">
+      <button id="import-data" class="import-btn" >
+        <i class="fas fa-upload"></i>Import
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <h1 class="logo" style="font-size: 180%;">eNotes</h1>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" data-tab="regular">Regular</button>
+      <button class="tab" data-tab="checklists">Checklists</button>
+      <button class="tab" data-tab="locked">Locked</button>
+      <button class="tab" data-tab="images">Images</button>
+    </div>
+
+    <!-- Regular Notes Tab -->
+    <div id="regular" class="tab-content active">
+      <!-- Notebooks View -->
+      <div id="notebooks-view">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Create New Notebook</h2>
+          </div>
+          <div class="card-content">
+            <div class="input-group">
+              <input type="text" id="notebook-title" placeholder="Notebook Title">
+              <button id="create-notebook" class="btn btn-primary">
+                <i class="fas fa-plus mr-2"></i> Create
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="notebooks-list" class="grid grid-cols-1">
+          <!-- Notebooks will be added here dynamically -->
+        </div>
+      </div>
+
+      <!-- Notebook Notes View -->
+      <div id="notebook-notes-view" class="hidden">
+        <button id="back-to-notebooks" class="btn btn-ghost back-btn">
+          <i class="fas fa-arrow-left"></i> Back to Notebooks
+        </button>
+        <h2 id="current-notebook-title" class="mb-4"></h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Add New Note</h2>
+          </div>
+          <div class="card-content">
+            <textarea id="note-content" placeholder="Write your note here..."></textarea>
+          </div>
+          <div class="card-footer">
+            <button id="add-note" class="btn btn-primary">
+              <i class="fas fa-plus mr-2"></i> Add Note
+            </button>
+          </div>
+        </div>
+
+        <div id="notes-list" class="grid grid-cols-1 mt-4">
+          <!-- Notes will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklists Tab -->
+    <div id="checklists" class="tab-content">
+      <!-- Checklist Groups View -->
+      <div id="checklist-groups-view">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Create New Checklist Group</h2>
+          </div>
+          <div class="card-content">
+            <div class="input-group">
+              <input type="text" id="checklist-group-title" placeholder="Checklist Group Title">
+              <button id="create-checklist-group" class="btn btn-primary">
+                <i class="fas fa-plus mr-2"></i> Create
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="checklist-groups-list" class="grid grid-cols-1">
+          <!-- Checklist groups will be added here dynamically -->
+        </div>
+      </div>
+
+      <!-- Checklist Group Items View -->
+      <div id="checklist-group-items-view" class="hidden">
+        <button id="back-to-checklist-groups" class="btn btn-ghost back-btn">
+          <i class="fas fa-arrow-left"></i> Back to Checklist Groups
+        </button>
+        <h2 id="current-checklist-group-title" class="mb-4"></h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Add New Checklist</h2>
+          </div>
+          <div class="card-content">
+            <textarea id="checklist-items" placeholder="Add checklist items (one per line)"></textarea>
+          </div>
+          <div class="card-footer">
+            <button id="add-checklist" class="btn btn-primary">
+              <i class="fas fa-plus mr-2"></i> Add Checklist
+            </button>
+          </div>
+        </div>
+
+        <div id="checklists-list" class="grid grid-cols-1 mt-4">
+          <!-- Checklists will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Locked Notes Tab -->
+    <div id="locked" class="tab-content">
+      <div id="locked-auth" class="card" style="max-width: 500px; margin: 0 auto;">
+        <div class="card-header">
+          <h2 class="card-title">Unlock Locked Notes</h2>
+        </div>
+        <div class="card-content">
+          <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem;">
+            Enter your password to view and manage your locked notes.
+          </p>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.85rem;">Password</label>
+            <div class="password-input">
+              <input type="password" id="locked-password" placeholder="Enter your password">
+              <button class="password-toggle" id="toggle-password">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button id="unlock-notes" class="btn btn-primary w-full">
+            <i class="fas fa-lock mr-2"></i> Unlock
+          </button>
+        </div>
+      </div>
+
+      <div id="locked-notes-view" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Add New Locked Note</h2>
+          </div>
+          <div class="card-content">
+            <textarea id="locked-note-content" placeholder="Write your locked note here..."></textarea>
+          </div>
+          <div class="card-footer">
+            <button id="add-locked-note" class="btn btn-primary">
+              <i class="fas fa-plus mr-2"></i> Add Locked Note
+            </button>
+          </div>
+        </div>
+
+        <div id="locked-notes-list" class="grid grid-cols-1 mt-4">
+          <!-- Locked notes will be added here dynamically -->
+        </div>
+      </div>
+
+      <!-- Set Password Modal -->
+      <div id="set-password-modal" class="modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Set Password</h3>
+            <button class="modal-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem;">
+              Create a password to protect your locked notes. Remember this password as it will be required to access your notes in the future.
+            </p>
+            <div style="margin-bottom: 0.75rem;">
+              <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.85rem;">New Password</label>
+              <div class="password-input">
+                <input type="password" id="new-password" placeholder="Enter a password">
+              </div>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.85rem;">Confirm Password</label>
+              <div class="password-input">
+                <input type="password" id="confirm-password" placeholder="Confirm your password">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="save-password" class="btn btn-primary">Save Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Images Tab -->
+    <div id="images" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title text-center">Upload Images</h2>
+        </div>
+        <div class="card-content">
+          <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
+          <div class="upload-btn" id="upload-btn">
+            <i class="fas fa-upload" style="font-size: 1.3rem;"></i>
+            <span>Click to Upload Images</span>
+            
+          </div>
+        </div>
+      </div>
+
+      <div id="images-list" class="grid grid-cols-1 mt-4">
+        <!-- Images will be added here dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Image Name Modal -->
+  <div id="edit-image-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Image Name</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="image-name-input" placeholder="Enter image name">
+        <input type="hidden" id="edit-image-id">
+      </div>
+      <div class="modal-footer">
+        <button id="save-image-name" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Note Modal -->
+  <div id="edit-note-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Note</h3>
+        <button class="modal-close" id="edit-note-modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="edit-note-content" placeholder="Edit your note here..."></textarea>
+        <input type="hidden" id="edit-note-id">
+        <input type="hidden" id="edit-note-type">
+      </div>
+      <div class="modal-footer">
+        <button id="save-edited-note" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Image Viewer -->
+  <div id="fullscreen-image-viewer" class="fullscreen-image">
+    <button id="fullscreen-close" class="fullscreen-close">
+      <i class="fas fa-times"></i>
+    </button>
+    <img id="fullscreen-img" src="/placeholder.svg" alt="Fullscreen image">
+    <div id="fullscreen-image-info" class="fullscreen-image-info"></div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentTab = 'regular';
+    let notebooks = [];
+    let currentNotebookId = null;
+    let checklistGroups = [];
+    let currentChecklistGroupId = null;
+    let lockedNotes = [];
+    let isLockedSectionUnlocked = false;
+    let images = [];
+    let hasSetPassword = false;
+    let lockedPassword = '';
+    let db = null;
+    const DB_NAME = 'eNotesDB';
+    const DB_VERSION = 1;
+    const IMAGES_STORE = 'images';
+    const DEBUG_MODE = false; // Set to true to enable debug logging
+
+    // Debug logging function
+    function debugLog(message, data = null) {
+      if (!DEBUG_MODE) return;
+      
+      const debugPanel = document.getElementById('debug-panel');
+      if (!debugPanel) return;
+      
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      
+      if (data) {
+        logEntry.textContent = `[${timestamp}] ${message}: ${JSON.stringify(data)}`;
+      } else {
+        logEntry.textContent = `[${timestamp}] ${message}`;
+      }
+      
+      debugPanel.appendChild(logEntry);
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+      
+      // Also log to console
+      if (data) {
+        console.log(`[${timestamp}] ${message}:`, data);
+      } else {
+        console.log(`[${timestamp}] ${message}`);
+      }
+    }
+
+    // Show debug panel if debug mode is enabled
+    if (DEBUG_MODE) {
+      document.getElementById('debug-panel').style.display = 'block';
+    }
+
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      debugLog("DOM fully loaded");
+      initDatabase().then(() => {
+        init();
+      }).catch(error => {
+        console.error("Error initializing database:", error);
+        alert("There was an error initializing the database: " + error.message);
+      });
+    });
+
+    // Initialize IndexedDB
+    async function initDatabase() {
+      return new Promise((resolve, reject) => {
+        debugLog("Initializing IndexedDB");
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = function(event) {
+          debugLog("IndexedDB error:", event.target.error);
+          reject(new Error("Failed to open database: " + event.target.error));
+        };
+        
+        request.onsuccess = function(event) {
+          db = event.target.result;
+          debugLog("Database opened successfully");
+          resolve();
+        };
+        
+        request.onupgradeneeded = function(event) {
+          debugLog("Database upgrade needed");
+          const db = event.target.result;
+          
+          // Create object stores if they don't exist
+          if (!db.objectStoreNames.contains(IMAGES_STORE)) {
+            const imagesStore = db.createObjectStore(IMAGES_STORE, { keyPath: 'id' });
+            imagesStore.createIndex('timestamp', 'timestamp', { unique: false });
+            debugLog("Images object store created");
+          }
+        };
+      });
+    }
+
+    // Initialize the app
+    function init() {
+      try {
+        debugLog("Initializing app");
+        // Load data from localStorage and IndexedDB
+        loadNotebooks();
+        loadChecklistGroups();
+        loadLockedNotes();
+        loadImages();
+        checkPasswordStatus();
+        
+        // Set up event listeners
+        setupEventListeners();
+        
+        debugLog("App initialized successfully");
+      } catch (error) {
+        console.error("Error initializing app:", error);
+        alert("There was an error initializing the app: " + error.message);
+      }
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+      try {
+        debugLog("Setting up event listeners");
+        
+        // Tab navigation
+        const tabButtons = document.querySelectorAll('.tab');
+        debugLog("Found tab buttons:", tabButtons.length);
+        
+        tabButtons.forEach(tab => {
+          tab.addEventListener('click', function() {
+            debugLog("Tab clicked:", this.getAttribute('data-tab'));
+            const tabName = this.getAttribute('data-tab');
+            switchTab(tabName);
+          });
+        });
+
+        // Regular Notes
+        document.getElementById('create-notebook').addEventListener('click', function() {
+          debugLog("Create notebook button clicked");
+          createNotebook();
+        });
+        
+        document.getElementById('back-to-notebooks').addEventListener('click', function() {
+          debugLog("Back to notebooks button clicked");
+          backToNotebooks();
+        });
+        
+        document.getElementById('add-note').addEventListener('click', function() {
+          debugLog("Add note button clicked");
+          addNote();
+        });
+
+        // Edit Note Modal
+        document.getElementById('edit-note-modal-close').addEventListener('click', function() {
+          debugLog("Edit note modal close button clicked");
+          document.getElementById('edit-note-modal').style.display = 'none';
+        });
+        
+        document.getElementById('save-edited-note').addEventListener('click', function() {
+          debugLog("Save edited note button clicked");
+          saveEditedNote();
+        });
+
+        // Checklists - Completely rewritten event listeners
+        document.getElementById('create-checklist-group').addEventListener('click', function() {
+          debugLog("Create checklist group button clicked");
+          createChecklistGroup();
+        });
+        
+        document.getElementById('back-to-checklist-groups').addEventListener('click', function() {
+          debugLog("Back to checklist groups button clicked");
+          backToChecklistGroups();
+        });
+        
+        document.getElementById('add-checklist').addEventListener('click', function() {
+          debugLog("Add checklist button clicked");
+          addChecklist();
+        });
+
+        // Locked Notes
+        document.getElementById('toggle-password').addEventListener('click', function() {
+          debugLog("Toggle password button clicked");
+          togglePasswordVisibility();
+        });
+        
+        document.getElementById('unlock-notes').addEventListener('click', function() {
+          debugLog("Unlock notes button clicked");
+          unlockNotes();
+        });
+        
+        document.getElementById('add-locked-note').addEventListener('click', function() {
+          debugLog("Add locked note button clicked");
+          addLockedNote();
+        });
+        
+        document.getElementById('save-password').addEventListener('click', function() {
+          debugLog("Save password button clicked");
+          savePassword();
+        });
+        
+        const setPasswordModalClose = document.querySelector('#set-password-modal .modal-close');
+        if (setPasswordModalClose) {
+          setPasswordModalClose.addEventListener('click', function() {
+            debugLog("Set password modal close button clicked");
+            document.getElementById('set-password-modal').style.display = 'none';
+          });
+        }
+
+        // Images
+        document.getElementById('upload-btn').addEventListener('click', function() {
+          debugLog("Upload button clicked");
+          document.getElementById('image-input').click();
+        });
+        
+        document.getElementById('image-input').addEventListener('change', function(e) {
+          debugLog("Image input changed");
+          handleImageUpload(e);
+        });
+        
+        document.getElementById('save-image-name').addEventListener('click', function() {
+          debugLog("Save image name button clicked");
+          saveImageName();
+        });
+        
+        const editImageModalClose = document.querySelector('#edit-image-modal .modal-close');
+        if (editImageModalClose) {
+          editImageModalClose.addEventListener('click', function() {
+            debugLog("Edit image modal close button clicked");
+            document.getElementById('edit-image-modal').style.display = 'none';
+          });
+        }
+        
+        // Fullscreen Image Viewer
+        document.getElementById('fullscreen-close').addEventListener('click', function() {
+          debugLog("Fullscreen close button clicked");
+          closeFullscreenImage();
+        });
+        
+        // Backup/Import
+        document.getElementById('backup-data').addEventListener('click', function() {
+          debugLog("Backup data button clicked");
+          backupData();
+        });
+        
+        document.getElementById('import-data').addEventListener('click', function() {
+          debugLog("Import data button clicked");
+          document.getElementById('import-input').click();
+        });
+        
+        document.getElementById('import-input').addEventListener('change', function(e) {
+          debugLog("Import input changed");
+          importData(e);
+        });
+        
+        debugLog("Event listeners set up successfully");
+      } catch (error) {
+        console.error("Error setting up event listeners:", error);
+        alert("There was an error setting up the app: " + error.message);
+      }
+    }
+
+    // Switch between tabs
+    function switchTab(tabName) {
+      try {
+        debugLog("Switching to tab:", tabName);
+        currentTab = tabName;
+        
+        // Update active tab
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+          if (tab.getAttribute('data-tab') === tabName) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+        
+        // Show active tab content
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(content => {
+          if (content.id === tabName) {
+            content.classList.add('active');
+          } else {
+            content.classList.remove('active');
+          }
+        });
+
+        // Check if we need to show the set password modal
+        if (tabName === 'locked' && !hasSetPassword) {
+          document.getElementById('set-password-modal').style.display = 'flex';
+        }
+        
+        debugLog("Tab switched successfully");
+      } catch (error) {
+        console.error("Error switching tabs:", error);
+      }
+    }
+
+    // ===== REGULAR NOTES FUNCTIONS =====
+    
+    // Load notebooks from localStorage
+    function loadNotebooks() {
+      try {
+        debugLog("Loading notebooks");
+        const savedNotebooks = localStorage.getItem('notebooks');
+        if (savedNotebooks) {
+          notebooks = JSON.parse(savedNotebooks);
+          debugLog("Loaded notebooks from localStorage:", notebooks.length);
+        } else {
+          // Add sample notebooks if none exist
+          notebooks = [
+            {
+              id: 1,
+              title: 'Work Notes',
+              notes: [
+                {
+                  id: 1,
+                  content: 'Meeting with team at 2pm',
+                  timestamp: '15/01/2023, 15:30:00'
+                },
+                {
+                  id: 2,
+                  content: 'Project deadline on Friday',
+                  timestamp: '16/01/2023, 20:00:00'
+                }
+              ]
+            },
+            {
+              id: 2,
+              title: 'Personal',
+              notes: [
+                {
+                  id: 3,
+                  content: 'Buy groceries',
+                  timestamp: '17/01/2023, 10:15:00'
+                }
+              ]
+            }
+          ];
+          saveNotebooks();
+          debugLog("Created sample notebooks");
+        }
+        renderNotebooks();
+      } catch (error) {
+        console.error("Error loading notebooks:", error);
+      }
+    }
+
+    // Save notebooks to localStorage
+    function saveNotebooks() {
+      try {
+        localStorage.setItem('notebooks', JSON.stringify(notebooks));
+        debugLog("Notebooks saved to localStorage");
+      } catch (error) {
+        console.error("Error saving notebooks:", error);
+      }
+    }
+
+    // Render notebooks list
+    function renderNotebooks() {
+      try {
+        debugLog("Rendering notebooks");
+        const notebooksList = document.getElementById('notebooks-list');
+        if (!notebooksList) {
+          console.error("Notebooks list element not found");
+          return;
+        }
+        
+        notebooksList.innerHTML = '';
+        
+        if (notebooks.length === 0) {
+          notebooksList.innerHTML = '<p style="color: var(--text-secondary);">No notebooks found. Create one to get started!</p>';
+          return;
+        }
+        
+        notebooks.forEach(notebook => {
+          const notebookEl = document.createElement('div');
+          notebookEl.className = 'card notebook';
+          notebookEl.innerHTML = `
+            <div class="card-header">
+              <h3 class="notebook-title">${notebook.title}</h3>
+              <button class="btn btn-ghost btn-icon absolute top-2 right-2 delete-notebook" data-id="${notebook.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-footer">
+              <span class="notebook-count">${notebook.notes.length} notes</span>
+            </div>
+          `;
+          
+          // Open notebook on click
+          notebookEl.addEventListener('click', function(e) {
+            // Don't open if delete button was clicked
+            if (!e.target.closest('.delete-notebook')) {
+              debugLog("Opening notebook:", notebook.id);
+              openNotebook(notebook.id);
+            }
+          });
+          
+          // Delete notebook
+          const deleteBtn = notebookEl.querySelector('.delete-notebook');
+          deleteBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            debugLog("Deleting notebook:", notebook.id);
+            deleteNotebook(notebook.id);
+          });
+          
+          notebooksList.appendChild(notebookEl);
+        });
+        
+        debugLog("Notebooks rendered successfully");
+      } catch (error) {
+        console.error("Error rendering notebooks:", error);
+      }
+    }
+
+    // Create a new notebook
+    function createNotebook() {
+      try {
+        debugLog("Creating new notebook");
+        const notebookTitleInput = document.getElementById('notebook-title');
+        const title = notebookTitleInput.value.trim();
+        if (!title) {
+          alert('Please enter a notebook title');
+          return;
+        }
+        
+        const newNotebook = {
+          id: Date.now(),
+          title: title,
+          notes: []
+        };
+        
+        notebooks.push(newNotebook);
+        saveNotebooks();
+        renderNotebooks();
+        
+        notebookTitleInput.value = '';
+        debugLog("Notebook created successfully:", newNotebook.id);
+      } catch (error) {
+        console.error("Error creating notebook:", error);
+      }
+    }
+
+    // Open a notebook
+    function openNotebook(notebookId) {
+      try {
+        debugLog("Opening notebook:", notebookId);
+        currentNotebookId = notebookId;
+        const notebook = notebooks.find(nb => nb.id === notebookId);
+        
+        if (notebook) {
+          document.getElementById('current-notebook-title').textContent = notebook.title;
+          renderNotes(notebook.notes);
+          
+          document.getElementById('notebooks-view').classList.add('hidden');
+          document.getElementById('notebook-notes-view').classList.remove('hidden');
+          debugLog("Notebook opened successfully");
+        } else {
+          console.error("Notebook not found:", notebookId);
+        }
+      } catch (error) {
+        console.error("Error opening notebook:", error);
+      }
+    }
+
+    // Go back to notebooks list
+    function backToNotebooks() {
+      try {
+        debugLog("Going back to notebooks");
+        currentNotebookId = null;
+        document.getElementById('notebooks-view').classList.remove('hidden');
+        document.getElementById('notebook-notes-view').classList.add('hidden');
+        debugLog("Returned to notebooks successfully");
+      } catch (error) {
+        console.error("Error going back to notebooks:", error);
+      }
+    }
+
+    // Render notes for a notebook
+    function renderNotes(notes) {
+      try {
+        debugLog("Rendering notes");
+        const notesList = document.getElementById('notes-list');
+        if (!notesList) {
+          console.error("Notes list element not found");
+          return;
+        }
+        
+        notesList.innerHTML = '';
+        
+        if (notes.length === 0) {
+          notesList.innerHTML = '<p style="color: var(--text-secondary);">No notes in this notebook. Add one to get started!</p>';
+          return;
+        }
+        
+        notes.forEach(note => {
+          const noteEl = document.createElement('div');
+          noteEl.className = 'card note';
+          noteEl.innerHTML = `
+            <div class="note-actions">
+              <button class="btn btn-ghost btn-icon edit-note" data-id="${note.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon delete-note" data-id="${note.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-content">
+              <p class="note-content">${note.content}</p>
+            </div>
+            <div class="card-footer">
+              <span class="note-timestamp">${note.timestamp}</span>
+            </div>
+          `;
+          
+          // Delete note
+          const deleteBtn = noteEl.querySelector('.delete-note');
+          deleteBtn.addEventListener('click', function() {
+            debugLog("Deleting note:", note.id);
+            deleteNote(note.id);
+          });
+          
+          // Edit note
+          const editBtn = noteEl.querySelector('.edit-note');
+          editBtn.addEventListener('click', function() {
+            debugLog("Edit note clicked:", note.id);
+            openEditNoteModal(note.id, 'regular');
+          });
+          
+          notesList.appendChild(noteEl);
+        });
+        
+        debugLog("Notes rendered successfully");
+      } catch (error) {
+        console.error("Error rendering notes:", error);
+      }
+    }
+
+    // Open edit note modal
+    function openEditNoteModal(noteId, noteType) {
+      try {
+        debugLog("Opening edit note modal:", noteId, noteType);
+        
+        let note;
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+        }
+        
+        if (note) {
+          document.getElementById('edit-note-content').value = note.content;
+          document.getElementById('edit-note-id').value = noteId;
+          document.getElementById('edit-note-type').value = noteType;
+          document.getElementById('edit-note-modal').style.display = 'flex';
+          debugLog("Edit note modal opened successfully");
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error opening edit note modal:", error);
+      }
+    }
+
+    // Save edited note
+    function saveEditedNote() {
+      try {
+        debugLog("Saving edited note");
+        const noteId = parseInt(document.getElementById('edit-note-id').value);
+        const noteType = document.getElementById('edit-note-type').value;
+        const newContent = document.getElementById('edit-note-content').value.trim();
+        
+        if (!newContent) {
+          alert('Please enter note content');
+          return;
+        }
+        
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            const note = notebook.notes.find(n => n.id === noteId);
+            if (note) {
+              note.content = newContent;
+              note.timestamp = new Date().toLocaleString() + ' (edited)';
+              saveNotebooks();
+              renderNotes(notebook.notes);
+              debugLog("Regular note edited successfully");
+            }
+          }
+        } else if (noteType === 'locked') {
+          const note = lockedNotes.find(n => n.id === noteId);
+          if (note) {
+            note.content = newContent;
+            note.timestamp = new Date().toLocaleString() + ' (edited)';
+            saveLockedNotes();
+            renderLockedNotes();
+            debugLog("Locked note edited successfully");
+          }
+        }
+        
+        // Close modal
+        document.getElementById('edit-note-modal').style.display = 'none';
+      } catch (error) {
+        console.error("Error saving edited note:", error);
+      }
+    }
+
+    // Add a new note to the current notebook
+    function addNote() {
+      try {
+        debugLog("Adding new note");
+        const noteContentInput = document.getElementById('note-content');
+        const content = noteContentInput.value.trim();
+        if (!content) {
+          alert('Please enter note content');
+          return;
+        }
+        
+        const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+        if (notebook) {
+          const newNote = {
+            id: Date.now(),
+            content: content,
+            timestamp: new Date().toLocaleString()
+          };
+          
+          notebook.notes.push(newNote);
+          saveNotebooks();
+          renderNotes(notebook.notes);
+          
+          noteContentInput.value = '';
+          debugLog("Note added successfully:", newNote.id);
+        } else {
+          console.error("Current notebook not found");
+        }
+      } catch (error) {
+        console.error("Error adding note:", error);
+      }
+    }
+
+    // Delete a note
+    function deleteNote(noteId) {
+      try {
+        debugLog("Deleting note:", noteId);
+        if (confirm('Are you sure you want to delete this note?')) {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            notebook.notes = notebook.notes.filter(note => note.id !== noteId);
+            saveNotebooks();
+            renderNotes(notebook.notes);
+            debugLog("Note deleted successfully");
+          } else {
+            console.error("Current notebook not found");
+          }
+        }
+      } catch (error) {
+        console.error("Error deleting note:", error);
+      }
+    }
+
+    // Delete a notebook
+    function deleteNotebook(notebookId) {
+      try {
+        debugLog("Deleting notebook:", notebookId);
+        if (confirm('Are you sure you want to delete this notebook and all its notes?')) {
+          notebooks = notebooks.filter(notebook => notebook.id !== notebookId);
+          saveNotebooks();
+          renderNotebooks();
+          debugLog("Notebook deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting notebook:", error);
+      }
+    }
+
+    // ===== CHECKLIST FUNCTIONS ===== (COMPLETELY REWRITTEN)
+    
+    // Load checklist groups from localStorage
+    function loadChecklistGroups() {
+      try {
+        debugLog("Loading checklist groups");
+        const savedGroups = localStorage.getItem('checklistGroups');
+        if (savedGroups) {
+          checklistGroups = JSON.parse(savedGroups);
+          debugLog("Loaded checklist groups from localStorage:", checklistGroups.length);
+        } else {
+          // Add sample checklist group if none exist
+          checklistGroups = [
+            {
+              id: 1,
+              title: 'Shopping List',
+              checklists: [
+                {
+                  id: 1,
+                  items: ['Milk', 'Eggs', 'Bread', 'Fruits'],
+                  checked: [false, true, false, false],
+                  timestamp: '15/01/2023, 15:30:00'
+                }
+              ]
+            }
+          ];
+          saveChecklistGroups();
+          debugLog("Created sample checklist groups");
+        }
+        renderChecklistGroups();
+      } catch (error) {
+        console.error("Error loading checklist groups:", error);
+      }
+    }
+
+    // Save checklist groups to localStorage
+    function saveChecklistGroups() {
+      try {
+        localStorage.setItem('checklistGroups', JSON.stringify(checklistGroups));
+        debugLog("Checklist groups saved to localStorage");
+      } catch (error) {
+        console.error("Error saving checklist groups:", error);
+      }
+    }
+
+    // Render checklist groups
+    function renderChecklistGroups() {
+      try {
+        debugLog("Rendering checklist groups");
+        const checklistGroupsList = document.getElementById('checklist-groups-list');
+        if (!checklistGroupsList) {
+          console.error("Checklist groups list element not found");
+          return;
+        }
+        
+        checklistGroupsList.innerHTML = '';
+        
+        if (checklistGroups.length === 0) {
+          checklistGroupsList.innerHTML = '<p style="color: var(--text-secondary);">No checklist groups found. Create one to get started!</p>';
+          return;
+        }
+        
+        checklistGroups.forEach(group => {
+          const groupEl = document.createElement('div');
+          groupEl.className = 'card notebook';
+          groupEl.innerHTML = `
+            <div class="card-header">
+              <h3 class="notebook-title">${group.title}</h3>
+              <button class="btn btn-ghost btn-icon absolute top-2 right-2 delete-checklist-group" data-id="${group.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-footer">
+              <span class="notebook-count">${group.checklists.length} checklists</span>
+            </div>
+          `;
+          
+          // Open checklist group on click
+          groupEl.addEventListener('click', function(e) {
+            // Don't open if delete button was clicked
+            if (!e.target.closest('.delete-checklist-group')) {
+              debugLog("Opening checklist group:", group.id);
+              openChecklistGroup(group.id);
+            }
+          });
+          
+          // Delete checklist group
+          const deleteBtn = groupEl.querySelector('.delete-checklist-group');
+          deleteBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            debugLog("Deleting checklist group:", group.id);
+            deleteChecklistGroup(group.id);
+          });
+          
+          checklistGroupsList.appendChild(groupEl);
+        });
+        
+        debugLog("Checklist groups rendered successfully");
+      } catch (error) {
+        console.error("Error rendering checklist groups:", error);
+      }
+    }
+
+    // Create a new checklist group - COMPLETELY REWRITTEN
+    function createChecklistGroup() {
+      try {
+        debugLog("Creating new checklist group");
+        const titleInput = document.getElementById('checklist-group-title');
+        const title = titleInput.value.trim();
+        
+        if (!title) {
+          alert('Please enter a checklist group title');
+          return;
+        }
+        
+        const newGroup = {
+          id: Date.now(),
+          title: title,
+          checklists: []
+        };
+        
+        checklistGroups.push(newGroup);
+        saveChecklistGroups();
+        renderChecklistGroups();
+        
+        titleInput.value = '';
+        debugLog("Checklist group created successfully:", newGroup.id);
+      } catch (error) {
+        console.error("Error creating checklist group:", error);
+        alert("Error creating checklist group: " + error.message);
+      }
+    }
+
+    // Open a checklist group
+    function openChecklistGroup(groupId) {
+      try {
+        debugLog("Opening checklist group:", groupId);
+        currentChecklistGroupId = groupId;
+        const group = checklistGroups.find(g => g.id === groupId);
+        
+        if (group) {
+          document.getElementById('current-checklist-group-title').textContent = group.title;
+          renderChecklists(group.checklists);
+          
+          document.getElementById('checklist-groups-view').classList.add('hidden');
+          document.getElementById('checklist-group-items-view').classList.remove('hidden');
+          debugLog("Checklist group opened successfully");
+        } else {
+          console.error("Checklist group not found:", groupId);
+        }
+      } catch (error) {
+        console.error("Error opening checklist group:", error);
+      }
+    }
+
+    // Go back to checklist groups list
+    function backToChecklistGroups() {
+      try {
+        debugLog("Going back to checklist groups");
+        currentChecklistGroupId = null;
+        document.getElementById('checklist-groups-view').classList.remove('hidden');
+        document.getElementById('checklist-group-items-view').classList.add('hidden');
+        debugLog("Returned to checklist groups successfully");
+      } catch (error) {
+        console.error("Error going back to checklist groups:", error);
+      }
+    }
+
+    // Render checklists for a group
+    function renderChecklists(checklists) {
+      try {
+        debugLog("Rendering checklists");
+        const checklistsList = document.getElementById('checklists-list');
+        if (!checklistsList) {
+          console.error("Checklists list element not found");
+          return;
+        }
+        
+        checklistsList.innerHTML = '';
+        
+        if (checklists.length === 0) {
+          checklistsList.innerHTML = '<p style="color: var(--text-secondary);">No checklists in this group. Add one to get started!</p>';
+          return;
+        }
+        
+        checklists.forEach(checklist => {
+          const checklistEl = document.createElement('div');
+          checklistEl.className = 'card note';
+          
+          let itemsHTML = '';
+          checklist.items.forEach((item, index) => {
+            itemsHTML += `
+              <label class="checklist-item">
+                <input type="checkbox" ${checklist.checked[index] ? 'checked' : ''} data-checklist-id="${checklist.id}" data-item-index="${index}">
+                <span>${item}</span>
+              </label>
+            `;
+          });
+          
+          checklistEl.innerHTML = `
+            <div class="note-actions">
+              <button class="btn btn-ghost btn-icon delete-checklist" data-id="${checklist.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-content">
+              ${itemsHTML}
+            </div>
+            <div class="card-footer">
+              <span class="note-timestamp">${checklist.timestamp}</span>
+            </div>
+          `;
+          
+          // Delete checklist
+          const deleteBtn = checklistEl.querySelector('.delete-checklist');
+          deleteBtn.addEventListener('click', function() {
+            debugLog("Deleting checklist:", checklist.id);
+            deleteChecklist(checklist.id);
+          });
+          
+          // Toggle checklist items
+          const checkboxes = checklistEl.querySelectorAll('input[type="checkbox"]');
+          checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              const checklistId = parseInt(this.getAttribute('data-checklist-id'));
+              const itemIndex = parseInt(this.getAttribute('data-item-index'));
+              debugLog("Toggling checklist item:", checklistId, itemIndex, this.checked);
+              toggleChecklistItem(checklistId, itemIndex, this.checked);
+            });
+          });
+          
+          checklistsList.appendChild(checklistEl);
+        });
+        
+        debugLog("Checklists rendered successfully");
+      } catch (error) {
+        console.error("Error rendering checklists:", error);
+      }
+    }
+
+    // Add a new checklist to the current group
+    function addChecklist() {
+      try {
+        debugLog("Adding new checklist");
+        const checklistItemsInput = document.getElementById('checklist-items');
+        const content = checklistItemsInput.value.trim();
+        if (!content) {
+          alert('Please enter checklist items');
+          return;
+        }
+        
+        const group = checklistGroups.find(g => g.id === currentChecklistGroupId);
+        if (group) {
+          const items = content.split('\n').filter(item => item.trim() !== '');
+          
+          const newChecklist = {
+            id: Date.now(),
+            items: items,
+            checked: Array(items.length).fill(false),
+            timestamp: new Date().toLocaleString()
+          };
+          
+          group.checklists.push(newChecklist);
+          saveChecklistGroups();
+          renderChecklists(group.checklists);
+          
+          checklistItemsInput.value = '';
+          debugLog("Checklist added successfully:", newChecklist.id);
+        } else {
+          console.error("Current checklist group not found");
+        }
+      } catch (error) {
+        console.error("Error adding checklist:", error);
+      }
+    }
+
+    // Toggle a checklist item
+    function toggleChecklistItem(checklistId, itemIndex, isChecked) {
+      try {
+        debugLog("Toggling checklist item:", checklistId, itemIndex, isChecked);
+        const group = checklistGroups.find(g => g.id === currentChecklistGroupId);
+        if (group) {
+          const checklist = group.checklists.find(c => c.id === checklistId);
+          if (checklist) {
+            checklist.checked[itemIndex] = isChecked;
+            saveChecklistGroups();
+            debugLog("Checklist item toggled successfully");
+          } else {
+            console.error("Checklist not found:", checklistId);
+          }
+        } else {
+          console.error("Current checklist group not found");
+        }
+      } catch (error) {
+        console.error("Error toggling checklist item:", error);
+      }
+    }
+
+    // Delete a checklist
+    function deleteChecklist(checklistId) {
+      try {
+        debugLog("Deleting checklist:", checklistId);
+        if (confirm('Are you sure you want to delete this checklist?')) {
+          const group = checklistGroups.find(g => g.id === currentChecklistGroupId);
+          if (group) {
+            group.checklists = group.checklists.filter(checklist => checklist.id !== checklistId);
+            saveChecklistGroups();
+            renderChecklists(group.checklists);
+            debugLog("Checklist deleted successfully");
+          } else {
+            console.error("Current checklist group not found");
+          }
+        }
+      } catch (error) {
+        console.error("Error deleting checklist:", error);
+      }
+    }
+
+    // Delete a checklist group
+    function deleteChecklistGroup(groupId) {
+      try {
+        debugLog("Deleting checklist group:", groupId);
+        if (confirm('Are you sure you want to delete this checklist group and all its checklists?')) {
+          checklistGroups = checklistGroups.filter(group => group.id !== groupId);
+          saveChecklistGroups();
+          renderChecklistGroups();
+          debugLog("Checklist group deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting checklist group:", error);
+      }
+    }
+
+    // ===== LOCKED NOTES FUNCTIONS =====
+    
+    // Check if password has been set
+    function checkPasswordStatus() {
+      try {
+        debugLog("Checking password status");
+        const savedPassword = localStorage.getItem('lockedPassword');
+        if (savedPassword) {
+          hasSetPassword = true;
+          lockedPassword = savedPassword;
+          debugLog("Password found in localStorage");
+        } else {
+          debugLog("No password found in localStorage");
+        }
+      } catch (error) {
+        console.error("Error checking password status:", error);
+      }
+    }
+    
+    // Load locked notes from localStorage
+    function loadLockedNotes() {
+      try {
+        debugLog("Loading locked notes");
+        const savedNotes = localStorage.getItem('lockedNotes');
+        if (savedNotes) {
+       
+          
+          lockedNotes = JSON.parse(savedNotes);
+          debugLog("Loaded locked notes from localStorage:", lockedNotes.length);
+        } else {
+          debugLog("No locked notes found in localStorage");
+        }
+      } catch (error) {
+        console.error("Error loading locked notes:", error);
+      }
+    }
+
+    // Save locked notes to localStorage
+    function saveLockedNotes() {
+      try {
+        localStorage.setItem('lockedNotes', JSON.stringify(lockedNotes));
+        debugLog("Locked notes saved to localStorage");
+      } catch (error) {
+        console.error("Error saving locked notes:", error);
+      }
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility() {
+      try {
+        debugLog("Toggling password visibility");
+        const passwordInput = document.getElementById('locked-password');
+        const icon = document.querySelector('#toggle-password i');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.className = 'fas fa-eye-slash';
+          debugLog("Password now visible");
+        } else {
+          passwordInput.type = 'password';
+          icon.className = 'fas fa-eye';
+          debugLog("Password now hidden");
+        }
+      } catch (error) {
+        console.error("Error toggling password visibility:", error);
+      }
+    }
+
+    // Save password
+    function savePassword() {
+      try {
+        debugLog("Saving password");
+        const newPassword = document.getElementById('new-password').value.trim();
+        const confirmPassword = document.getElementById('confirm-password').value.trim();
+        
+        if (!newPassword) {
+          alert('Please enter a password');
+          return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+          alert('Passwords do not match');
+          return;
+        }
+        
+        // Save password to localStorage
+        localStorage.setItem('lockedPassword', newPassword);
+        lockedPassword = newPassword;
+        hasSetPassword = true;
+        
+        // Close modal
+        document.getElementById('set-password-modal').style.display = 'none';
+        
+        // Clear inputs
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+        debugLog("Password saved successfully");
+      } catch (error) {
+        console.error("Error saving password:", error);
+      }
+    }
+
+    // Unlock the locked notes section
+    function unlockNotes() {
+      try {
+        debugLog("Unlocking notes");
+        const password = document.getElementById('locked-password').value.trim();
+        if (!password) {
+          alert('Please enter a password');
+          return;
+        }
+        
+        // Check if password matches
+        if (password === lockedPassword) {
+          isLockedSectionUnlocked = true;
+          
+          document.getElementById('locked-auth').classList.add('hidden');
+          document.getElementById('locked-notes-view').classList.remove('hidden');
+          
+          renderLockedNotes();
+          debugLog("Notes unlocked successfully");
+        } else {
+          alert('Incorrect password');
+          debugLog("Incorrect password entered");
+        }
+      } catch (error) {
+        console.error("Error unlocking notes:", error);
+      }
+    }
+
+    // Render locked notes
+    function renderLockedNotes() {
+      try {
+        debugLog("Rendering locked notes");
+        const lockedNotesList = document.getElementById('locked-notes-list');
+        if (!lockedNotesList) {
+          console.error("Locked notes list element not found");
+          return;
+        }
+        
+        lockedNotesList.innerHTML = '';
+        
+        if (lockedNotes.length === 0) {
+          lockedNotesList.innerHTML = '<p style="color: var(--text-secondary);">No locked notes found. Add one to get started!</p>';
+          return;
+        }
+        
+        lockedNotes.forEach(note => {
+          const noteEl = document.createElement('div');
+          noteEl.className = 'card note';
+          noteEl.innerHTML = `
+            <div class="note-actions">
+              <button class="btn btn-ghost btn-icon edit-locked-note" data-id="${note.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon delete-locked-note" data-id="${note.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-content">
+              <p class="note-content">${note.content}</p>
+            </div>
+            <div class="card-footer">
+              <span class="note-timestamp">${note.timestamp}</span>
+            </div>
+          `;
+          
+          // Delete locked note
+          const deleteBtn = noteEl.querySelector('.delete-locked-note');
+          deleteBtn.addEventListener('click', function() {
+            debugLog("Deleting locked note:", note.id);
+            deleteLockedNote(note.id);
+          });
+          
+          // Edit locked note
+          const editBtn = noteEl.querySelector('.edit-locked-note');
+          editBtn.addEventListener('click', function() {
+            debugLog("Edit locked note clicked:", note.id);
+            openEditNoteModal(note.id, 'locked');
+          });
+          
+          lockedNotesList.appendChild(noteEl);
+        });
+        
+        debugLog("Locked notes rendered successfully");
+      } catch (error) {
+        console.error("Error rendering locked notes:", error);
+      }
+    }
+
+    // Add a new locked note
+    function addLockedNote() {
+      try {
+        debugLog("Adding new locked note");
+        const lockedNoteContentInput = document.getElementById('locked-note-content');
+        const content = lockedNoteContentInput.value.trim();
+        if (!content) {
+          alert('Please enter note content');
+          return;
+        }
+        
+        const newNote = {
+          id: Date.now(),
+          content: content,
+          timestamp: new Date().toLocaleString()
+        };
+        
+        lockedNotes.push(newNote);
+        saveLockedNotes();
+        renderLockedNotes();
+        
+        lockedNoteContentInput.value = '';
+        debugLog("Locked note added successfully:", newNote.id);
+      } catch (error) {
+        console.error("Error adding locked note:", error);
+      }
+    }
+
+    // Delete a locked note
+    function deleteLockedNote(noteId) {
+      try {
+        debugLog("Deleting locked note:", noteId);
+        if (confirm('Are you sure you want to delete this locked note?')) {
+          lockedNotes = lockedNotes.filter(note => note.id !== noteId);
+          saveLockedNotes();
+          renderLockedNotes();
+          debugLog("Locked note deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting locked note:", error);
+      }
+    }
+
+    // ===== IMAGES FUNCTIONS WITH INDEXEDDB =====
+    
+    // Load images from IndexedDB
+    function loadImages() {
+      try {
+        debugLog("Loading images from IndexedDB");
+        if (!db) {
+          console.error("Database not initialized");
+          return;
+        }
+        
+        const transaction = db.transaction([IMAGES_STORE], 'readonly');
+        const store = transaction.objectStore(IMAGES_STORE);
+        const request = store.getAll();
+        
+        request.onsuccess = function(event) {
+          images = event.target.result || [];
+          debugLog("Loaded images from IndexedDB:", images.length);
+          renderImages();
+        };
+        
+        request.onerror = function(event) {
+          console.error("Error loading images from IndexedDB:", event.target.error);
+        };
+      } catch (error) {
+        console.error("Error loading images:", error);
+      }
+    }
+
+    // Save an image to IndexedDB
+    function saveImageToIndexedDB(image) {
+      return new Promise((resolve, reject) => {
+        try {
+          debugLog("Saving image to IndexedDB:", image.id);
+          if (!db) {
+            reject(new Error("Database not initialized"));
+            return;
+          }
+          
+          const transaction = db.transaction([IMAGES_STORE], 'readwrite');
+          const store = transaction.objectStore(IMAGES_STORE);
+          const request = store.put(image);
+          
+          request.onsuccess = function() {
+            debugLog("Image saved to IndexedDB successfully:", image.id);
+            resolve();
+          };
+          
+          request.onerror = function(event) {
+            console.error("Error saving image to IndexedDB:", event.target.error);
+            reject(event.target.error);
+          };
+        } catch (error) {
+          console.error("Error in saveImageToIndexedDB:", error);
+          reject(error);
+        }
+      });
+    }
+
+    // Delete an image from IndexedDB
+    function deleteImageFromIndexedDB(imageId) {
+      return new Promise((resolve, reject) => {
+        try {
+          debugLog("Deleting image from IndexedDB:", imageId);
+          if (!db) {
+            reject(new Error("Database not initialized"));
+            return;
+          }
+          
+          const transaction = db.transaction([IMAGES_STORE], 'readwrite');
+          const store = transaction.objectStore(IMAGES_STORE);
+          const request = store.delete(imageId);
+          
+          request.onsuccess = function() {
+            debugLog("Image deleted from IndexedDB successfully:", imageId);
+            resolve();
+          };
+          
+          request.onerror = function(event) {
+            console.error("Error deleting image from IndexedDB:", event.target.error);
+            reject(event.target.error);
+          };
+        } catch (error) {
+          console.error("Error in deleteImageFromIndexedDB:", error);
+          reject(error);
+        }
+      });
+    }
+
+    // Handle image upload with IndexedDB
+    function handleImageUpload(e) {
+      try {
+        debugLog("Handling image upload");
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        
+        // Show loading overlay with progress bar
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.querySelector('.progress-container');
+        
+        loadingOverlay.style.display = 'flex';
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        
+        let processedCount = 0;
+        const totalFiles = files.length;
+        
+        // Process each file
+        Array.from(files).forEach((file, index) => {
+          debugLog(`Processing file ${index + 1}/${totalFiles}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+          
+          // Check file size (30MB limit)
+          if (file.size > 30 * 1024 * 1024) {
+            alert(`File ${file.name} exceeds the 30MB limit and will be skipped.`);
+            processedCount++;
+            updateProgress(processedCount, totalFiles);
+            return;
+          }
+          
+          const reader = new FileReader();
+          
+          reader.onload = async function(event) {
+            try {
+              const newImage = {
+                id: Date.now() + index,
+                name: file.name,
+                src: event.target.result,
+                size: file.size,
+                type: file.type,
+                timestamp: new Date().toLocaleString()
+              };
+              
+              // Save to IndexedDB
+              await saveImageToIndexedDB(newImage);
+              
+              // Update in-memory array
+              images.push(newImage);
+              
+              // Update progress
+              processedCount++;
+              updateProgress(processedCount, totalFiles);
+              
+              // If all files processed, render images and hide loading
+              if (processedCount === totalFiles) {
+                renderImages();
+                setTimeout(() => {
+                  loadingOverlay.style.display = 'none';
+                  progressContainer.style.display = 'none';
+                }, 500);
+                debugLog("All images uploaded successfully");
+              }
+            } catch (error) {
+              console.error("Error processing image:", error);
+              processedCount++;
+              updateProgress(processedCount, totalFiles);
+            }
+          };
+          
+          reader.onerror = function() {
+            console.error("Error reading file:", file.name);
+            processedCount++;
+            updateProgress(processedCount, totalFiles);
+          };
+          
+          reader.readAsDataURL(file);
+        });
+        
+        // Clear the input
+        e.target.value = '';
+      } catch (error) {
+        console.error("Error handling image upload:", error);
+        document.getElementById('loading-overlay').style.display = 'none';
+      }
+    }
+
+    // Update progress bar
+    function updateProgress(current, total) {
+      const progressBar = document.getElementById('progress-bar');
+      const percentage = Math.round((current / total) * 100);
+      progressBar.style.width = `${percentage}%`;
+      document.querySelector('.loading-text').textContent = `Processing images: ${current}/${total} (${percentage}%)`;
+    }
+
+    // Render images
+    function renderImages() {
+      try {
+        debugLog("Rendering images");
+        const imagesList = document.getElementById('images-list');
+        if (!imagesList) {
+          console.error("Images list element not found");
+          return;
+        }
+        
+        imagesList.innerHTML = '';
+        
+        if (images.length === 0) {
+          imagesList.innerHTML = '<p style="color: var(--text-secondary);">No images found. Upload some to get started!</p>';
+          return;
+        }
+        
+        // Sort images by timestamp (newest first)
+        const sortedImages = [...images].sort((a, b) => {
+          // Convert string timestamps to Date objects for proper comparison
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          return dateB - dateA;
+        });
+        
+        sortedImages.forEach(image => {
+          // Truncate image name
+          const truncatedName = image.name.length > 15 ? 
+            image.name.substring(0, 9) + '...' : 
+            image.name;
+          
+          // Format file size
+          const fileSize = image.size ? 
+            (image.size < 1024 * 1024 ? 
+              `${(image.size / 1024).toFixed(1)} KB` : 
+              `${(image.size / 1024 / 1024).toFixed(1)} MB`) : 
+            '';
+            
+          const imageEl = document.createElement('div');
+          imageEl.className = 'card image-card';
+          imageEl.innerHTML = `
+            <img src="${image.src}" alt="${image.name}" class="view-image" data-id="${image.id}">
+            <div class="card-footer">
+              <div>
+                <span class="truncated-name" title="${image.name}">${truncatedName}</span>
+                ${fileSize ? `<small style="display: block; color: var(--text-secondary); font-size: 0.7rem;">${fileSize}</small>` : ''}
+              </div>
+              <div class="flex">
+                <button class="btn btn-ghost btn-icon mr-2 edit-image" data-id="${image.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-ghost btn-icon delete-image" data-id="${image.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          
+          // View image in fullscreen
+          const imgElement = imageEl.querySelector('.view-image');
+          imgElement.addEventListener('click', function() {
+            debugLog("Opening image in fullscreen:", image.id);
+            openFullscreenImage(image.id);
+          });
+          
+          // Edit image name
+          const editBtn = imageEl.querySelector('.edit-image');
+          editBtn.addEventListener('click', function() {
+            debugLog("Editing image name:", image.id);
+            openEditImageModal(image.id);
+          });
+          
+          // Delete image
+          const deleteBtn = imageEl.querySelector('.delete-image');
+          deleteBtn.addEventListener('click', function() {
+            debugLog("Deleting image:", image.id);
+            deleteImage(image.id);
+          });
+          
+          imagesList.appendChild(imageEl);
+        });
+        
+        debugLog("Images rendered successfully");
+      } catch (error) {
+        console.error("Error rendering images:", error);
+      }
+    }
+
+    // Open fullscreen image viewer
+    function openFullscreenImage(imageId) {
+      try {
+        debugLog("Opening fullscreen image:", imageId);
+        const image = images.find(img => img.id === imageId);
+        if (image) {
+          document.getElementById('fullscreen-img').src = image.src;
+          
+          // Show file size if available
+          const fileSize = image.size ? 
+            (image.size < 1024 * 1024 ? 
+              `${(image.size / 1024).toFixed(1)} KB` : 
+              `${(image.size / 1024 / 1024).toFixed(1)} MB`) : 
+            '';
+          
+          document.getElementById('fullscreen-image-info').textContent = `${image.name} ${fileSize ? `(${fileSize})` : ''}`;
+          document.getElementById('fullscreen-image-viewer').style.display = 'flex';
+          debugLog("Fullscreen image opened successfully");
+        } else {
+          console.error("Image not found:", imageId);
+        }
+      } catch (error) {
+        console.error("Error opening fullscreen image:", error);
+      }
+    }
+
+    // Close fullscreen image viewer
+    function closeFullscreenImage() {
+      try {
+        debugLog("Closing fullscreen image");
+        document.getElementById('fullscreen-image-viewer').style.display = 'none';
+        debugLog("Fullscreen image closed successfully");
+      } catch (error) {
+        console.error("Error closing fullscreen image:", error);
+      }
+    }
+
+    // Open edit image modal
+    function openEditImageModal(imageId) {
+      try {
+        debugLog("Opening edit image modal:", imageId);
+        const image = images.find(img => img.id === imageId);
+        if (image) {
+          document.getElementById('image-name-input').value = image.name;
+          document.getElementById('edit-image-id').value = imageId;
+          document.getElementById('edit-image-modal').style.display = 'flex';
+          debugLog("Edit image modal opened successfully");
+        } else {
+          console.error("Image not found:", imageId);
+        }
+      } catch (error) {
+        console.error("Error opening edit image modal:", error);
+      }
+    }
+
+    // Save image name
+    async function saveImageName() {
+      try {
+        debugLog("Saving image name");
+        const imageId = parseInt(document.getElementById('edit-image-id').value);
+        const newName = document.getElementById('image-name-input').value.trim();
+        
+        if (!newName) {
+          alert('Please enter an image name');
+          return;
+        }
+        
+        const image = images.find(img => img.id === imageId);
+        if (image) {
+          image.name = newName;
+          
+          // Update in IndexedDB
+          await saveImageToIndexedDB(image);
+          
+          renderImages();
+          
+          // Close modal
+          document.getElementById('edit-image-modal').style.display = 'none';
+          debugLog("Image name saved successfully");
+        } else {
+          console.error("Image not found:", imageId);
+        }
+      } catch (error) {
+        console.error("Error saving image name:", error);
+      }
+    }
+
+    // Delete an image
+    async function deleteImage(imageId) {
+      try {
+        debugLog("Deleting image:", imageId);
+        if (confirm('Are you sure you want to delete this image?')) {
+          // Delete from IndexedDB
+          await deleteImageFromIndexedDB(imageId);
+          
+          // Update in-memory array
+          images = images.filter(image => image.id !== imageId);
+          
+          renderImages();
+          debugLog("Image deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting image:", error);
+      }
+    }
+
+    // ===== BACKUP/IMPORT FUNCTIONS =====
+    
+    // Backup all data to a JSON file
+    async function backupData() {
+      try {
+        debugLog("Backing up data");
+        
+        // Show loading overlay
+        document.getElementById('loading-overlay').style.display = 'flex';
+        document.querySelector('.loading-text').textContent = 'Creating backup...';
+        
+        // Get all data
+        const data = {
+          notebooks: notebooks,
+          checklistGroups: checklistGroups,
+          lockedNotes: lockedNotes,
+          images: images,
+          hasSetPassword: hasSetPassword,
+          lockedPassword: lockedPassword
+        };
+        
+        const dataStr = JSON.stringify(data);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = 'enotes-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        
+        // Hide loading overlay
+        document.getElementById('loading-overlay').style.display = 'none';
+        
+        linkElement.click();
+        debugLog("Data backed up successfully");
+      } catch (error) {
+        // Hide loading overlay
+        document.getElementById('loading-overlay').style.display = 'none';
+        console.error("Error backing up data:", error);
+        alert("Error backing up data: " + error.message);
+      }
+    }
+    
+    // Import data from a JSON file
+    async function importData(e) {
+      try {
+        debugLog("Importing data");
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.querySelector('.progress-container');
+        
+        loadingOverlay.style.display = 'flex';
+        document.querySelector('.loading-text').textContent = 'Reading backup file...';
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '10%';
+        
+        const reader = new FileReader();
+        
+        reader.onload = async function(event) {
+          try {
+            progressBar.style.width = '30%';
+            document.querySelector('.loading-text').textContent = 'Parsing data...';
+            
+            const data = JSON.parse(event.target.result);
+            
+            // Validate data structure
+            if (data.notebooks && data.checklistGroups) {
+              progressBar.style.width = '40%';
+              document.querySelector('.loading-text').textContent = 'Importing basic data...';
+              
+              // Import basic data
+              notebooks = data.notebooks;
+              checklistGroups = data.checklistGroups;
+              lockedNotes = data.lockedNotes || [];
+              
+              // Save to localStorage
+              saveNotebooks();
+              saveChecklistGroups();
+              saveLockedNotes();
+              
+              // Update UI for non-image data
+              renderNotebooks();
+              renderChecklistGroups();
+              
+              progressBar.style.width = '50%';
+              document.querySelector('.loading-text').textContent = 'Processing images...';
+              
+              // Process images
+              const importedImages = data.images || [];
+              const totalImages = importedImages.length;
+              
+              if (totalImages > 0) {
+                // Clear existing images from IndexedDB
+                const clearTransaction = db.transaction([IMAGES_STORE], 'readwrite');
+                const clearStore = clearTransaction.objectStore(IMAGES_STORE);
+                const clearRequest = clearStore.clear();
+                
+                await new Promise((resolve, reject) => {
+                  clearRequest.onsuccess = resolve;
+                  clearRequest.onerror = reject;
+                });
+                
+                // Process images in batches
+                images = []; // Clear existing images array
+                let processedCount = 0;
+                
+                // Process images in smaller batches to avoid memory issues
+                const batchSize = 5;
+                const batches = [];
+                
+                for (let i = 0; i < totalImages; i += batchSize) {
+                  batches.push(importedImages.slice(i, i + batchSize));
+                }
+                
+                for (let i = 0; i < batches.length; i++) {
+                  const batch = batches[i];
+                  
+                  await Promise.all(batch.map(async (img) => {
+                    try {
+                      // Ensure image data is valid
+                      if (img && img.src && img.id) {
+                        // Save to IndexedDB
+                        await saveImageToIndexedDB(img);
+                        images.push(img);
+                      }
+                      processedCount++;
+                      
+                      // Update progress
+                      const percentage = 50 + Math.round((processedCount / totalImages) * 40);
+                      progressBar.style.width = `${percentage}%`;
+                      document.querySelector('.loading-text').textContent = 
+                        `Processing images: ${processedCount}/${totalImages}`;
+                    } catch (error) {
+                      console.error(`Error processing image ${img.id}:`, error);
+                      processedCount++;
+                    }
+                  }));
+                  
+                  // Small delay between batches to allow UI to update
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                }
+              }
+              
+              progressBar.style.width = '90%';
+              document.querySelector('.loading-text').textContent = 'Finalizing import...';
+              
+              // Import password settings
+              if (data.hasSetPassword && data.lockedPassword) {
+                hasSetPassword = data.hasSetPassword;
+                lockedPassword = data.lockedPassword;
+                localStorage.setItem('lockedPassword', lockedPassword);
+              }
+              
+              // Render images
+              renderImages();
+              
+              progressBar.style.width = '100%';
+              document.querySelector('.loading-text').textContent = 'Import completed successfully!';
+              
+              // Hide loading overlay after a short delay
+              setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                progressContainer.style.display = 'none';
+              }, 1000);
+              
+              alert('Data imported successfully!');
+              debugLog("Data imported successfully");
+            } else {
+              // Hide loading overlay
+              loadingOverlay.style.display = 'none';
+              progressContainer.style.display = 'none';
+              alert('Invalid backup file format');
+              debugLog("Invalid backup file format");
+            }
+          } catch (error) {
+            // Hide loading overlay
+            loadingOverlay.style.display = 'none';
+            progressContainer.style.display = 'none';
+            alert('Error importing data: ' + error.message);
+            console.error("Error parsing import data:", error);
+          }
+        };
+        
+        reader.onerror = function() {
+          // Hide loading overlay
+          loadingOverlay.style.display = 'none';
+          progressContainer.style.display = 'none';
+          alert('Error reading file');
+          console.error("Error reading file");
+        };
+        
+        reader.readAsText(file);
+        
+        // Clear the input
+        e.target.value = '';
+      } catch (error) {
+        // Hide loading overlay
+        document.getElementById('loading-overlay').style.display = 'none';
+        document.querySelector('.progress-container').style.display = 'none';
+        console.error("Error importing data:", error);
+        alert('Error importing data: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
