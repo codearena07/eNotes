@@ -659,6 +659,75 @@
       z-index: 9999;
       display: none;
     }
+
+    /* Toast notification */
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 5000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 350px;
+      animation: slideIn 0.3s ease-out forwards;
+      border-left: 4px solid var(--primary);
+    }
+
+    .toast-notification .toast-icon {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .toast-notification .toast-content {
+      flex: 1;
+    }
+
+    .toast-notification .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    .toast-notification .toast-message {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .toast-notification .toast-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -673,6 +742,18 @@
 
   <!-- Debug Panel (hidden by default) -->
   <div id="debug-panel" class="debug-panel"></div>
+
+  <!-- Toast Notification (hidden by default) -->
+  <div id="toast-notification" class="toast-notification" style="display: none;">
+    <div class="toast-icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-title">Success</div>
+      <div class="toast-message">Operation completed successfully</div>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
 
   <!-- Backup/Import Buttons -->
   <div class="backup-import-container">
@@ -884,22 +965,50 @@
 
     <!-- Images Tab -->
     <div id="images" class="tab-content">
-      <div class="card">
+      <!-- Images Auth View (New) -->
+      <div id="images-auth" class="card" style="max-width: 500px; margin: 0 auto;">
         <div class="card-header">
-          <h2 class="card-title text-center">Upload Images</h2>
+          <h2 class="card-title">Unlock Images</h2>
         </div>
         <div class="card-content">
-          <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
-          <div class="upload-btn" id="upload-btn">
-            <i class="fas fa-upload" style="font-size: 1.3rem;"></i>
-            <span>Click to Upload Images</span>
-            
+          <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem;">
+            Enter your password to view and manage your images.
+          </p>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.85rem;">Password</label>
+            <div class="password-input">
+              <input type="password" id="images-password" placeholder="Enter your password">
+              <button class="password-toggle" id="toggle-images-password">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
           </div>
+        </div>
+        <div class="card-footer">
+          <button id="unlock-images" class="btn btn-primary w-full">
+            <i class="fas fa-lock mr-2"></i> Unlock
+          </button>
         </div>
       </div>
 
-      <div id="images-list" class="grid grid-cols-1 mt-4">
-        <!-- Images will be added here dynamically -->
+      <!-- Images Content View (Hidden initially) -->
+      <div id="images-content-view" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title text-center">Upload Images</h2>
+          </div>
+          <div class="card-content">
+            <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
+            <div class="upload-btn" id="upload-btn">
+              <i class="fas fa-upload" style="font-size: 1.3rem;"></i>
+              <span>Click to Upload Images</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="images-list" class="grid grid-cols-1 mt-4">
+          <!-- Images will be added here dynamically -->
+        </div>
       </div>
     </div>
   </div>
@@ -957,6 +1066,7 @@
     let currentChecklistGroupId = null;
     let lockedNotes = [];
     let isLockedSectionUnlocked = false;
+    let isImagesSectionUnlocked = false; // New variable for images section
     let images = [];
     let hasSetPassword = false;
     let lockedPassword = '';
@@ -965,6 +1075,7 @@
     const DB_VERSION = 1;
     const IMAGES_STORE = 'images';
     const DEBUG_MODE = false; // Set to true to enable debug logging
+    const AUTO_BACKUP_MINUTES = 10080; // Minutes between automatic backups
 
     // Debug logging function
     function debugLog(message, data = null) {
@@ -1054,10 +1165,124 @@
         // Set up event listeners
         setupEventListeners();
         
+        // Check if automatic backup is needed
+        checkAutoBackup();
+        
         debugLog("App initialized successfully");
       } catch (error) {
         console.error("Error initializing app:", error);
         alert("There was an error initializing the app: " + error.message);
+      }
+    }
+
+    // Check if automatic backup is needed
+    function checkAutoBackup() {
+      try {
+        debugLog("Checking if automatic backup is needed");
+        
+        // Get the last backup date from localStorage
+        const lastBackupDate = localStorage.getItem('lastBackupDate');
+        const currentDate = new Date();
+        
+        if (lastBackupDate) {
+         // Replace with this code
+const minutesSinceLastBackup = Math.floor((currentDate - new Date(lastBackupDate)) / (1000 * 60));
+debugLog("Minutes since last backup:", minutesSinceLastBackup);
+
+if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
+  // It's been 10080 or more minutes since the last backup, perform automatic backup
+  debugLog("Performing automatic backup");
+  performAutoBackup();
+} else {
+            debugLog("Automatic backup not needed yet");
+          }
+        } else {
+          // No backup has been made yet, set current date as last backup date
+          localStorage.setItem('lastBackupDate', currentDate.toISOString());
+          debugLog("First time running, setting initial backup date");
+        }
+      } catch (error) {
+        console.error("Error checking automatic backup:", error);
+      }
+    }
+
+    // Perform automatic backup
+    async function performAutoBackup() {
+      try {
+        debugLog("Performing automatic backup");
+        
+        // Create backup data
+        const data = {
+          notebooks: notebooks,
+          checklistGroups: checklistGroups,
+          lockedNotes: lockedNotes,
+          images: images,
+          hasSetPassword: hasSetPassword,
+          lockedPassword: lockedPassword
+        };
+        
+        const dataStr = JSON.stringify(data);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = 'enotes-auto-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.style.display = 'none';
+        document.body.appendChild(linkElement);
+        
+        linkElement.click();
+        
+        document.body.removeChild(linkElement);
+        
+        // Update last backup date
+        localStorage.setItem('lastBackupDate', new Date().toISOString());
+        
+        // Show toast notification
+        showToast('Auto Backup Complete', '7-day automatic backup has been created and downloaded.', 'check-circle');
+        
+        debugLog("Automatic backup completed successfully");
+      } catch (error) {
+        console.error("Error performing automatic backup:", error);
+      }
+    }
+
+    // Show toast notification
+    function showToast(title, message, icon = 'check-circle', duration = 10000) {
+      try {
+        const toast = document.getElementById('toast-notification');
+        const toastTitle = toast.querySelector('.toast-title');
+        const toastMessage = toast.querySelector('.toast-message');
+        const toastIcon = toast.querySelector('.toast-icon i');
+        
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        toastIcon.className = `fas fa-${icon}`;
+        
+        toast.style.display = 'flex';
+        toast.style.animation = 'slideIn 0.3s ease-out forwards';
+        
+        // Set up close button
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.onclick = function() {
+          toast.style.animation = 'slideOut 0.3s ease-in forwards';
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 300);
+        };
+        
+        // Auto close after duration
+        setTimeout(() => {
+          if (toast.style.display !== 'none') {
+            toast.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(() => {
+              toast.style.display = 'none';
+            }, 300);
+          }
+        }, duration);
+      } catch (error) {
+        console.error("Error showing toast:", error);
       }
     }
 
@@ -1124,7 +1349,7 @@
         // Locked Notes
         document.getElementById('toggle-password').addEventListener('click', function() {
           debugLog("Toggle password button clicked");
-          togglePasswordVisibility();
+          togglePasswordVisibility('locked-password', 'toggle-password');
         });
         
         document.getElementById('unlock-notes').addEventListener('click', function() {
@@ -1150,7 +1375,17 @@
           });
         }
 
-        // Images
+        // Images - Updated with password protection
+        document.getElementById('toggle-images-password').addEventListener('click', function() {
+          debugLog("Toggle images password button clicked");
+          togglePasswordVisibility('images-password', 'toggle-images-password');
+        });
+        
+        document.getElementById('unlock-images').addEventListener('click', function() {
+          debugLog("Unlock images button clicked");
+          unlockImages();
+        });
+        
         document.getElementById('upload-btn').addEventListener('click', function() {
           debugLog("Upload button clicked");
           document.getElementById('image-input').click();
@@ -1196,6 +1431,16 @@
           importData(e);
         });
         
+        // Toast notification close button
+        document.querySelector('.toast-close').addEventListener('click', function() {
+          debugLog("Toast close button clicked");
+          const toast = document.getElementById('toast-notification');
+          toast.style.animation = 'slideOut 0.3s ease-in forwards';
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 300);
+        });
+        
         debugLog("Event listeners set up successfully");
       } catch (error) {
         console.error("Error setting up event listeners:", error);
@@ -1230,7 +1475,7 @@
         });
 
         // Check if we need to show the set password modal
-        if (tabName === 'locked' && !hasSetPassword) {
+        if ((tabName === 'locked' || tabName === 'images') && !hasSetPassword) {
           document.getElementById('set-password-modal').style.display = 'flex';
         }
         
@@ -2001,12 +2246,12 @@
       }
     }
 
-    // Toggle password visibility
-    function togglePasswordVisibility() {
+    // Toggle password visibility - Updated to be reusable
+    function togglePasswordVisibility(inputId, toggleBtnId) {
       try {
-        debugLog("Toggling password visibility");
-        const passwordInput = document.getElementById('locked-password');
-        const icon = document.querySelector('#toggle-password i');
+        debugLog("Toggling password visibility for:", inputId);
+        const passwordInput = document.getElementById(inputId);
+        const icon = document.querySelector(`#${toggleBtnId} i`);
         
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
@@ -2081,6 +2326,34 @@
         }
       } catch (error) {
         console.error("Error unlocking notes:", error);
+      }
+    }
+
+    // Unlock the images section - New function
+    function unlockImages() {
+      try {
+        debugLog("Unlocking images section");
+        const password = document.getElementById('images-password').value.trim();
+        if (!password) {
+          alert('Please enter a password');
+          return;
+        }
+        
+        // Check if password matches
+        if (password === lockedPassword) {
+          isImagesSectionUnlocked = true;
+          
+          document.getElementById('images-auth').classList.add('hidden');
+          document.getElementById('images-content-view').classList.remove('hidden');
+          
+          renderImages();
+          debugLog("Images section unlocked successfully");
+        } else {
+          alert('Incorrect password');
+          debugLog("Incorrect password entered for images section");
+        }
+      } catch (error) {
+        console.error("Error unlocking images section:", error);
       }
     }
 
@@ -2381,6 +2654,13 @@
           return;
         }
         
+        // Check if images section is locked and show appropriate view
+        if (!isImagesSectionUnlocked && hasSetPassword) {
+          document.getElementById('images-auth').classList.remove('hidden');
+          document.getElementById('images-content-view').classList.add('hidden');
+          return;
+        }
+        
         imagesList.innerHTML = '';
         
         if (images.length === 0) {
@@ -2599,7 +2879,12 @@
         document.getElementById('loading-overlay').style.display = 'none';
         
         linkElement.click();
+        
+        // Update last backup date
+        localStorage.setItem('lastBackupDate', new Date().toISOString());
+        
         debugLog("Data backed up successfully");
+        showToast('Backup Complete', 'Your data has been successfully backed up.', 'check-circle');
       } catch (error) {
         // Hide loading overlay
         document.getElementById('loading-overlay').style.display = 'none';
@@ -2725,6 +3010,9 @@
               // Render images
               renderImages();
               
+              // Update last backup date to current date
+              localStorage.setItem('lastBackupDate', new Date().toISOString());
+              
               progressBar.style.width = '100%';
               document.querySelector('.loading-text').textContent = 'Import completed successfully!';
               
@@ -2734,7 +3022,7 @@
                 progressContainer.style.display = 'none';
               }, 1000);
               
-              alert('Data imported successfully!');
+              showToast('Import Complete', 'Your data has been successfully imported.', 'check-circle');
               debugLog("Data imported successfully");
             } else {
               // Hide loading overlay
