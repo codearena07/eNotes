@@ -729,23 +729,25 @@
       }
     }
 
-    /* New styles for adaptive layout */
-    #notebooks-list, #checklist-groups-list, #notes-list, #checklists-list, #locked-notes-list, #images-list {
+    /* Fixed 2-column layout for notebooks and checklist groups */
+    #notebooks-list, #checklist-groups-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    /* Adaptive layout for notes and other lists */
+    #notes-list, #checklists-list, #locked-notes-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 0.75rem;
     }
 
     /* Single item should take full width when alone */
-    #notebooks-list > *:only-child,
-    #checklist-groups-list > *:only-child,
     #notes-list > *:only-child,
     #checklists-list > *:only-child,
     #locked-notes-list > *:only-child,
-    #images-list > *:only-child {
-      grid-column: 1 / -1;
-      max-width: 100%;
-    }
+    
   </style>
 </head>
 <body>
@@ -1105,8 +1107,6 @@
     const STORAGE_CURRENT_CHECKLIST_GROUP = 'eNotes_currentChecklistGroupId';
     const STORAGE_NOTEBOOK_VIEW = 'eNotes_notebookView';
     const STORAGE_CHECKLIST_VIEW = 'eNotes_checklistView';
-    const STORAGE_LOCKED_UNLOCKED = 'eNotes_lockedUnlocked';
-    const STORAGE_IMAGES_UNLOCKED = 'eNotes_imagesUnlocked';
 
     // Debug logging function
     function debugLog(message, data = null) {
@@ -1217,19 +1217,18 @@
         // Save current tab
         sessionStorage.setItem(STORAGE_CURRENT_TAB, currentTab);
         
-        // Save notebook state
-        sessionStorage.setItem(STORAGE_CURRENT_NOTEBOOK, currentNotebookId);
-        sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 
-          document.getElementById('notebooks-view').classList.contains('hidden') ? 'notes' : 'notebooks');
-        
-        // Save checklist state
-        sessionStorage.setItem(STORAGE_CURRENT_CHECKLIST_GROUP, currentChecklistGroupId);
-        sessionStorage.setItem(STORAGE_CHECKLIST_VIEW, 
-          document.getElementById('checklist-groups-view').classList.contains('hidden') ? 'checklists' : 'groups');
-        
-        // Save locked/images unlock state
-        sessionStorage.setItem(STORAGE_LOCKED_UNLOCKED, isLockedSectionUnlocked);
-        sessionStorage.setItem(STORAGE_IMAGES_UNLOCKED, isImagesSectionUnlocked);
+        // Only save notebook and checklist state, not locked or images
+        if (currentTab === 'regular' || currentTab === 'checklists') {
+          // Save notebook state
+          sessionStorage.setItem(STORAGE_CURRENT_NOTEBOOK, currentNotebookId);
+          sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 
+            document.getElementById('notebooks-view').classList.contains('hidden') ? 'notes' : 'notebooks');
+          
+          // Save checklist state
+          sessionStorage.setItem(STORAGE_CURRENT_CHECKLIST_GROUP, currentChecklistGroupId);
+          sessionStorage.setItem(STORAGE_CHECKLIST_VIEW, 
+            document.getElementById('checklist-groups-view').classList.contains('hidden') ? 'checklists' : 'groups');
+        }
         
         debugLog("Session state saved");
       } catch (error) {
@@ -1248,37 +1247,23 @@
           switchTab(savedTab);
         }
         
-        // Restore notebook state
-        const savedNotebookId = sessionStorage.getItem(STORAGE_CURRENT_NOTEBOOK);
-        const savedNotebookView = sessionStorage.getItem(STORAGE_NOTEBOOK_VIEW);
-        
-        if (savedNotebookId && savedNotebookId !== 'null' && savedNotebookView === 'notes') {
-          openNotebook(parseInt(savedNotebookId));
-        }
-        
-        // Restore checklist state
-        const savedChecklistGroupId = sessionStorage.getItem(STORAGE_CURRENT_CHECKLIST_GROUP);
-        const savedChecklistView = sessionStorage.getItem(STORAGE_CHECKLIST_VIEW);
-        
-        if (savedChecklistGroupId && savedChecklistGroupId !== 'null' && savedChecklistView === 'checklists') {
-          openChecklistGroup(parseInt(savedChecklistGroupId));
-        }
-        
-        // Restore locked/images unlock state
-        const savedLockedUnlocked = sessionStorage.getItem(STORAGE_LOCKED_UNLOCKED);
-        if (savedLockedUnlocked === 'true' && hasSetPassword) {
-          isLockedSectionUnlocked = true;
-          document.getElementById('locked-auth').classList.add('hidden');
-          document.getElementById('locked-notes-view').classList.remove('hidden');
-          renderLockedNotes();
-        }
-        
-        const savedImagesUnlocked = sessionStorage.getItem(STORAGE_IMAGES_UNLOCKED);
-        if (savedImagesUnlocked === 'true' && hasSetPassword) {
-          isImagesSectionUnlocked = true;
-          document.getElementById('images-auth').classList.add('hidden');
-          document.getElementById('images-content-view').classList.remove('hidden');
-          renderImages();
+        // Only restore notebook and checklist state, not locked or images
+        if (savedTab === 'regular') {
+          // Restore notebook state
+          const savedNotebookId = sessionStorage.getItem(STORAGE_CURRENT_NOTEBOOK);
+          const savedNotebookView = sessionStorage.getItem(STORAGE_NOTEBOOK_VIEW);
+          
+          if (savedNotebookId && savedNotebookId !== 'null' && savedNotebookView === 'notes') {
+            openNotebook(parseInt(savedNotebookId));
+          }
+        } else if (savedTab === 'checklists') {
+          // Restore checklist state
+          const savedChecklistGroupId = sessionStorage.getItem(STORAGE_CURRENT_CHECKLIST_GROUP);
+          const savedChecklistView = sessionStorage.getItem(STORAGE_CHECKLIST_VIEW);
+          
+          if (savedChecklistGroupId && savedChecklistGroupId !== 'null' && savedChecklistView === 'checklists') {
+            openChecklistGroup(parseInt(savedChecklistGroupId));
+          }
         }
         
         debugLog("Session state restored");
@@ -1825,11 +1810,8 @@
           sessionStorage.setItem(STORAGE_CURRENT_NOTEBOOK, notebookId);
           sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 'notes');
           
-         
-          
           debugLog("Notebook opened successfully");
-        }
-         else {
+        } else {
           console.error("Notebook not found:", notebookId);
         }
       } catch (error) {
@@ -2513,9 +2495,6 @@
           document.getElementById('locked-auth').classList.add('hidden');
           document.getElementById('locked-notes-view').classList.remove('hidden');
           
-          // Save unlock state to session storage
-          sessionStorage.setItem(STORAGE_LOCKED_UNLOCKED, 'true');
-          
           renderLockedNotes();
           debugLog("Notes unlocked successfully");
         } else {
@@ -2543,9 +2522,6 @@
           
           document.getElementById('images-auth').classList.add('hidden');
           document.getElementById('images-content-view').classList.remove('hidden');
-          
-          // Save unlock state to session storage
-          sessionStorage.setItem(STORAGE_IMAGES_UNLOCKED, 'true');
           
           renderImages();
           debugLog("Images section unlocked successfully");
