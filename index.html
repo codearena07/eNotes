@@ -728,6 +728,24 @@
         opacity: 0;
       }
     }
+
+    /* New styles for adaptive layout */
+    #notebooks-list, #checklist-groups-list, #notes-list, #checklists-list, #locked-notes-list, #images-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 0.75rem;
+    }
+
+    /* Single item should take full width when alone */
+    #notebooks-list > *:only-child,
+    #checklist-groups-list > *:only-child,
+    #notes-list > *:only-child,
+    #checklists-list > *:only-child,
+    #locked-notes-list > *:only-child,
+    #images-list > *:only-child {
+      grid-column: 1 / -1;
+      max-width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -1076,6 +1094,19 @@
     const IMAGES_STORE = 'images';
     const DEBUG_MODE = false; // Set to true to enable debug logging
     const AUTO_BACKUP_MINUTES = 10080; // Minutes between automatic backups
+    
+    // Variables for touch events
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    // Session storage keys
+    const STORAGE_CURRENT_TAB = 'eNotes_currentTab';
+    const STORAGE_CURRENT_NOTEBOOK = 'eNotes_currentNotebookId';
+    const STORAGE_CURRENT_CHECKLIST_GROUP = 'eNotes_currentChecklistGroupId';
+    const STORAGE_NOTEBOOK_VIEW = 'eNotes_notebookView';
+    const STORAGE_CHECKLIST_VIEW = 'eNotes_checklistView';
+    const STORAGE_LOCKED_UNLOCKED = 'eNotes_lockedUnlocked';
+    const STORAGE_IMAGES_UNLOCKED = 'eNotes_imagesUnlocked';
 
     // Debug logging function
     function debugLog(message, data = null) {
@@ -1168,10 +1199,91 @@
         // Check if automatic backup is needed
         checkAutoBackup();
         
+        // Restore previous session state
+        restoreSessionState();
+        
         debugLog("App initialized successfully");
       } catch (error) {
         console.error("Error initializing app:", error);
         alert("There was an error initializing the app: " + error.message);
+      }
+    }
+    
+    // Save current session state
+    function saveSessionState() {
+      try {
+        debugLog("Saving session state");
+        
+        // Save current tab
+        sessionStorage.setItem(STORAGE_CURRENT_TAB, currentTab);
+        
+        // Save notebook state
+        sessionStorage.setItem(STORAGE_CURRENT_NOTEBOOK, currentNotebookId);
+        sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 
+          document.getElementById('notebooks-view').classList.contains('hidden') ? 'notes' : 'notebooks');
+        
+        // Save checklist state
+        sessionStorage.setItem(STORAGE_CURRENT_CHECKLIST_GROUP, currentChecklistGroupId);
+        sessionStorage.setItem(STORAGE_CHECKLIST_VIEW, 
+          document.getElementById('checklist-groups-view').classList.contains('hidden') ? 'checklists' : 'groups');
+        
+        // Save locked/images unlock state
+        sessionStorage.setItem(STORAGE_LOCKED_UNLOCKED, isLockedSectionUnlocked);
+        sessionStorage.setItem(STORAGE_IMAGES_UNLOCKED, isImagesSectionUnlocked);
+        
+        debugLog("Session state saved");
+      } catch (error) {
+        console.error("Error saving session state:", error);
+      }
+    }
+    
+    // Restore previous session state
+    function restoreSessionState() {
+      try {
+        debugLog("Restoring session state");
+        
+        // Restore current tab
+        const savedTab = sessionStorage.getItem(STORAGE_CURRENT_TAB);
+        if (savedTab) {
+          switchTab(savedTab);
+        }
+        
+        // Restore notebook state
+        const savedNotebookId = sessionStorage.getItem(STORAGE_CURRENT_NOTEBOOK);
+        const savedNotebookView = sessionStorage.getItem(STORAGE_NOTEBOOK_VIEW);
+        
+        if (savedNotebookId && savedNotebookId !== 'null' && savedNotebookView === 'notes') {
+          openNotebook(parseInt(savedNotebookId));
+        }
+        
+        // Restore checklist state
+        const savedChecklistGroupId = sessionStorage.getItem(STORAGE_CURRENT_CHECKLIST_GROUP);
+        const savedChecklistView = sessionStorage.getItem(STORAGE_CHECKLIST_VIEW);
+        
+        if (savedChecklistGroupId && savedChecklistGroupId !== 'null' && savedChecklistView === 'checklists') {
+          openChecklistGroup(parseInt(savedChecklistGroupId));
+        }
+        
+        // Restore locked/images unlock state
+        const savedLockedUnlocked = sessionStorage.getItem(STORAGE_LOCKED_UNLOCKED);
+        if (savedLockedUnlocked === 'true' && hasSetPassword) {
+          isLockedSectionUnlocked = true;
+          document.getElementById('locked-auth').classList.add('hidden');
+          document.getElementById('locked-notes-view').classList.remove('hidden');
+          renderLockedNotes();
+        }
+        
+        const savedImagesUnlocked = sessionStorage.getItem(STORAGE_IMAGES_UNLOCKED);
+        if (savedImagesUnlocked === 'true' && hasSetPassword) {
+          isImagesSectionUnlocked = true;
+          document.getElementById('images-auth').classList.add('hidden');
+          document.getElementById('images-content-view').classList.remove('hidden');
+          renderImages();
+        }
+        
+        debugLog("Session state restored");
+      } catch (error) {
+        console.error("Error restoring session state:", error);
       }
     }
 
@@ -1185,15 +1297,14 @@
         const currentDate = new Date();
         
         if (lastBackupDate) {
-         // Replace with this code
-const minutesSinceLastBackup = Math.floor((currentDate - new Date(lastBackupDate)) / (1000 * 60));
-debugLog("Minutes since last backup:", minutesSinceLastBackup);
+          const minutesSinceLastBackup = Math.floor((currentDate - new Date(lastBackupDate)) / (1000 * 60));
+          debugLog("Minutes since last backup:", minutesSinceLastBackup);
 
-if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
-  // It's been 10080 or more minutes since the last backup, perform automatic backup
-  debugLog("Performing automatic backup");
-  performAutoBackup();
-} else {
+          if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
+            // It's been 10080 or more minutes since the last backup, perform automatic backup
+            debugLog("Performing automatic backup");
+            performAutoBackup();
+          } else {
             debugLog("Automatic backup not needed yet");
           }
         } else {
@@ -1415,6 +1526,24 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           closeFullscreenImage();
         });
         
+        // Close fullscreen image when clicking outside the image
+        document.getElementById('fullscreen-image-viewer').addEventListener('click', function(e) {
+          // Only close if the click is on the background, not on the image itself
+          if (e.target === this) {
+            closeFullscreenImage();
+          }
+        });
+        
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+          modal.addEventListener('click', function(e) {
+            // Only close if the click is on the overlay, not on the modal content
+            if (e.target === this) {
+              this.style.display = 'none';
+            }
+          });
+        });
+        
         // Backup/Import
         document.getElementById('backup-data').addEventListener('click', function() {
           debugLog("Backup data button clicked");
@@ -1441,10 +1570,54 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           }, 300);
         });
         
+        // Touch events for swiping between tabs
+        document.addEventListener('touchstart', function(e) {
+          touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        document.addEventListener('touchend', function(e) {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        }, false);
+        
+        // Save session state before unload
+        window.addEventListener('beforeunload', function() {
+          saveSessionState();
+        });
+        
         debugLog("Event listeners set up successfully");
       } catch (error) {
         console.error("Error setting up event listeners:", error);
         alert("There was an error setting up the app: " + error.message);
+      }
+    }
+    
+    // Handle swipe gesture
+    function handleSwipe() {
+      try {
+        const swipeThreshold = 100; // Minimum distance required for a swipe
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) < swipeThreshold) {
+          return; // Not a significant swipe
+        }
+        
+        const tabs = ['regular', 'checklists', 'locked', 'images'];
+        const currentTabIndex = tabs.indexOf(currentTab);
+        
+        if (swipeDistance > 0) {
+          // Swipe right - go to previous tab
+          if (currentTabIndex > 0) {
+            switchTab(tabs[currentTabIndex - 1]);
+          }
+        } else {
+          // Swipe left - go to next tab
+          if (currentTabIndex < tabs.length - 1) {
+            switchTab(tabs[currentTabIndex + 1]);
+          }
+        }
+      } catch (error) {
+        console.error("Error handling swipe:", error);
       }
     }
 
@@ -1478,6 +1651,9 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
         if ((tabName === 'locked' || tabName === 'images') && !hasSetPassword) {
           document.getElementById('set-password-modal').style.display = 'flex';
         }
+        
+        // Save current tab to session storage
+        sessionStorage.setItem(STORAGE_CURRENT_TAB, tabName);
         
         debugLog("Tab switched successfully");
       } catch (error) {
@@ -1644,8 +1820,16 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           
           document.getElementById('notebooks-view').classList.add('hidden');
           document.getElementById('notebook-notes-view').classList.remove('hidden');
+          
+          // Save state to session storage
+          sessionStorage.setItem(STORAGE_CURRENT_NOTEBOOK, notebookId);
+          sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 'notes');
+          
+         
+          
           debugLog("Notebook opened successfully");
-        } else {
+        }
+         else {
           console.error("Notebook not found:", notebookId);
         }
       } catch (error) {
@@ -1660,6 +1844,10 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
         currentNotebookId = null;
         document.getElementById('notebooks-view').classList.remove('hidden');
         document.getElementById('notebook-notes-view').classList.add('hidden');
+        
+        // Save state to session storage
+        sessionStorage.setItem(STORAGE_NOTEBOOK_VIEW, 'notebooks');
+        
         debugLog("Returned to notebooks successfully");
       } catch (error) {
         console.error("Error going back to notebooks:", error);
@@ -2012,6 +2200,11 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           
           document.getElementById('checklist-groups-view').classList.add('hidden');
           document.getElementById('checklist-group-items-view').classList.remove('hidden');
+          
+          // Save state to session storage
+          sessionStorage.setItem(STORAGE_CURRENT_CHECKLIST_GROUP, groupId);
+          sessionStorage.setItem(STORAGE_CHECKLIST_VIEW, 'checklists');
+          
           debugLog("Checklist group opened successfully");
         } else {
           console.error("Checklist group not found:", groupId);
@@ -2028,6 +2221,10 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
         currentChecklistGroupId = null;
         document.getElementById('checklist-groups-view').classList.remove('hidden');
         document.getElementById('checklist-group-items-view').classList.add('hidden');
+        
+        // Save state to session storage
+        sessionStorage.setItem(STORAGE_CHECKLIST_VIEW, 'groups');
+        
         debugLog("Returned to checklist groups successfully");
       } catch (error) {
         console.error("Error going back to checklist groups:", error);
@@ -2224,8 +2421,6 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
         debugLog("Loading locked notes");
         const savedNotes = localStorage.getItem('lockedNotes');
         if (savedNotes) {
-       
-          
           lockedNotes = JSON.parse(savedNotes);
           debugLog("Loaded locked notes from localStorage:", lockedNotes.length);
         } else {
@@ -2318,6 +2513,9 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           document.getElementById('locked-auth').classList.add('hidden');
           document.getElementById('locked-notes-view').classList.remove('hidden');
           
+          // Save unlock state to session storage
+          sessionStorage.setItem(STORAGE_LOCKED_UNLOCKED, 'true');
+          
           renderLockedNotes();
           debugLog("Notes unlocked successfully");
         } else {
@@ -2345,6 +2543,9 @@ if (minutesSinceLastBackup >= AUTO_BACKUP_MINUTES) {
           
           document.getElementById('images-auth').classList.add('hidden');
           document.getElementById('images-content-view').classList.remove('hidden');
+          
+          // Save unlock state to session storage
+          sessionStorage.setItem(STORAGE_IMAGES_UNLOCKED, 'true');
           
           renderImages();
           debugLog("Images section unlocked successfully");
