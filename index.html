@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     :root {
+      /* Dark theme (default) */
       --primary: #3b82f6;
       --primary-hover: #2563eb;
       --background: #111827;
@@ -18,6 +19,22 @@
       --text-primary: #e2e8f0;
       --text-secondary: #94a3b8;
       --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    /* Light theme variables */
+    [data-theme="light"] {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --background: #f1f5f9;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
     }
 
     * {
@@ -31,16 +48,18 @@
       background-color: var(--background);
       color: var(--text-primary);
       min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     /* Header Styles */
     header {
       display: flex;
-      justify-content: center;
+      justify-content:center;
       align-items: center;
       padding: 0.8rem;
       background-color: var(--card-bg);
-      border-bottom: 1px solid #2d3748;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.3s;
     }
 
     .logo {
@@ -103,13 +122,15 @@
       border-radius: 0.5rem;
       overflow: hidden;
       margin-bottom: 0.75rem;
-      border: 1px solid #2d3748;
+      border: 1px solid var(--border-color);
       max-width: 100%;
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
     .card-header {
       padding: 0.6rem;
-      border-bottom: 1px solid #2d3748;
+      border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.3s;
     }
 
     .card-title {
@@ -123,24 +144,26 @@
 
     .card-footer {
       padding: 0.6rem;
-      border-top: 1px solid #2d3748;
+      border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: center;
       align-items: center;
+      transition: border-color 0.3s;
     }
 
     /* Form Elements */
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 0.6rem;
       background-color: var(--border-color);
-      border: 1px solid #4a5568;
+      border: 1px solid var(--border-color);
       border-radius: 0.375rem;
       color: var(--text-primary);
       font-size: 0.875rem;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
 
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       outline: 2px solid var(--primary);
       border-color: var(--primary);
     }
@@ -210,6 +233,24 @@
       background-color: #dc2626;
     }
 
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #059669;
+    }
+
+    .btn-warning {
+      background-color: var(--warning);
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background-color: #d97706;
+    }
+
     /* Grid Layouts */
     .grid {
       display: grid;
@@ -256,6 +297,15 @@
     .note {
       position: relative;
       padding-top: 1.8rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .note.pinned {
+      border-left: 3px solid var(--warning);
+    }
+
+    .note.favorite {
+      border-left: 3px solid var(--success);
     }
 
     .note-content {
@@ -275,6 +325,37 @@
       right: 0.3rem;
       display: flex;
       gap: 0.25rem;
+    }
+
+    .note-badges {
+      position: absolute;
+      top: 0.3rem;
+      left: 0.3rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+      color: white;
+    }
+
+    .badge-warning {
+      background-color: var(--warning);
+    }
+
+    .badge-success {
+      background-color: var(--success);
+    }
+
+    .note-stats {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      display: flex;
+      justify-content: space-between;
     }
 
     /* Back Button */
@@ -402,6 +483,7 @@
       width: 90%;
       max-width: 500px;
       padding: 1.2rem;
+      transition: background-color 0.3s;
     }
 
     .modal-header {
@@ -677,6 +759,7 @@
       max-width: 350px;
       animation: slideIn 0.3s ease-out forwards;
       border-left: 4px solid var(--primary);
+      transition: background-color 0.3s, color 0.3s;
     }
 
     .toast-notification .toast-icon {
@@ -737,7 +820,7 @@
     }
 
     /* Adaptive layout for notes and other lists */
-    #notes-list, #checklists-list, #locked-notes-list {
+    #notes-list, #checklists-list, #locked-notes-list, #favorites-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 0.75rem;
@@ -748,6 +831,50 @@
     #checklists-list > *:only-child,
     #locked-notes-list > *:only-child,
     
+    #favorites-list > *:only-child {
+      grid-column: 1 / -1;
+      max-width: 100%;
+    }
+
+ 
+
+    /* Theme toggle */
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Favorites tab */
+    .favorites-empty {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2rem;
+    }
+
+    /* Word counter */
+    .word-counter {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+
+    /* No results message */
+    .no-results {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -780,12 +907,24 @@
     <button id="backup-data" class="backup-btn" style="margin: 1%;">
       <i class="fas fa-download"></i>Backup
     </button>
+
+    <button class="tab" data-tab="favorites" style="color:rgb(180, 255, 195); margin-top: 1%;">Favorites</button>
+
+    <div>
+      <button id="theme-toggle" class="theme-toggle">
+        <i class="fas fa-sun"></i>
+      </button>
+    </div>
+
+
+
     <div style="margin: 1%;">
       <input type="file" id="import-input" class="import-input" accept=".json">
       <button id="import-data" class="import-btn" >
         <i class="fas fa-upload"></i>Import
       </button>
     </div>
+
   </div>
 
   <!-- Header -->
@@ -793,8 +932,11 @@
     <div style="display: flex; justify-content: center; align-items: center;">
       <h1 class="logo" style="font-size: 180%;">eNotes</h1>
     </div>
+    
   </header>
   
+  
+
   <!-- Main Content -->
   <div class="container">
     <!-- Tab Navigation -->
@@ -803,6 +945,7 @@
       <button class="tab" data-tab="checklists">Checklists</button>
       <button class="tab" data-tab="locked">Locked</button>
       <button class="tab" data-tab="images">Images</button>
+      
     </div>
 
     <!-- Regular Notes Tab -->
@@ -841,6 +984,7 @@
           </div>
           <div class="card-content">
             <textarea id="note-content" placeholder="Write your note here..."></textarea>
+           
           </div>
           <div class="card-footer">
             <button id="add-note" class="btn btn-primary">
@@ -891,6 +1035,7 @@
           </div>
           <div class="card-content">
             <textarea id="checklist-items" placeholder="Add checklist items (one per line)"></textarea>
+            
           </div>
           <div class="card-footer">
             <button id="add-checklist" class="btn btn-primary">
@@ -939,6 +1084,7 @@
           </div>
           <div class="card-content">
             <textarea id="locked-note-content" placeholder="Write your locked note here..."></textarea>
+          
           </div>
           <div class="card-footer">
             <button id="add-locked-note" class="btn btn-primary">
@@ -1031,6 +1177,24 @@
         </div>
       </div>
     </div>
+
+    <!-- Favorites Tab (New) -->
+    <div id="favorites" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Favorite Notes</h2>
+        </div>
+        <div class="card-content">
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            Your favorite notes from all sections will appear here for quick access.
+          </p>
+        </div>
+      </div>
+
+      <div id="favorites-list" class="grid grid-cols-1 mt-4">
+        <!-- Favorite notes will be added here dynamically -->
+      </div>
+    </div>
   </div>
 
   <!-- Edit Image Name Modal -->
@@ -1059,6 +1223,7 @@
       </div>
       <div class="modal-body">
         <textarea id="edit-note-content" placeholder="Edit your note here..."></textarea>
+        <div class="word-counter" id="edit-note-counter">0 characters, 0 words</div>
         <input type="hidden" id="edit-note-id">
         <input type="hidden" id="edit-note-type">
       </div>
@@ -1086,11 +1251,12 @@
     let currentChecklistGroupId = null;
     let lockedNotes = [];
     let isLockedSectionUnlocked = false;
-    let isImagesSectionUnlocked = false; // New variable for images section
+    let isImagesSectionUnlocked = false;
     let images = [];
     let hasSetPassword = false;
     let lockedPassword = '';
     let db = null;
+    let favorites = []; // New array for favorite notes
     const DB_NAME = 'eNotesDB';
     const DB_VERSION = 1;
     const IMAGES_STORE = 'images';
@@ -1107,6 +1273,7 @@
     const STORAGE_CURRENT_CHECKLIST_GROUP = 'eNotes_currentChecklistGroupId';
     const STORAGE_NOTEBOOK_VIEW = 'eNotes_notebookView';
     const STORAGE_CHECKLIST_VIEW = 'eNotes_checklistView';
+    const STORAGE_THEME = 'eNotes_theme';
 
     // Debug logging function
     function debugLog(message, data = null) {
@@ -1186,11 +1353,15 @@
     function init() {
       try {
         debugLog("Initializing app");
+        // Load theme preference
+        loadTheme();
+        
         // Load data from localStorage and IndexedDB
         loadNotebooks();
         loadChecklistGroups();
         loadLockedNotes();
         loadImages();
+        loadFavorites();
         checkPasswordStatus();
         
         // Set up event listeners
@@ -1208,6 +1379,554 @@
         alert("There was an error initializing the app: " + error.message);
       }
     }
+    
+    // Load theme preference
+    function loadTheme() {
+      try {
+        const savedTheme = sessionStorage.getItem(STORAGE_THEME) || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggleIcon(savedTheme);
+        debugLog("Theme loaded:", savedTheme);
+      } catch (error) {
+        console.error("Error loading theme:", error);
+      }
+    }
+    
+    // Toggle theme between dark and light
+    function toggleTheme() {
+      try {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        sessionStorage.setItem(STORAGE_THEME, newTheme);
+        
+        updateThemeToggleIcon(newTheme);
+        debugLog("Theme toggled to:", newTheme);
+      } catch (error) {
+        console.error("Error toggling theme:", error);
+      }
+    }
+    
+    // Update theme toggle icon
+    function updateThemeToggleIcon(theme) {
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (theme === 'dark') {
+          icon.className = 'fas fa-sun';
+        } else {
+          icon.className = 'fas fa-moon';
+        }
+      }
+    }
+    
+    // Load favorites from localStorage
+    function loadFavorites() {
+      try {
+        debugLog("Loading favorites");
+        const savedFavorites = localStorage.getItem('favorites');
+        if (savedFavorites) {
+          favorites = JSON.parse(savedFavorites);
+          debugLog("Loaded favorites from localStorage:", favorites.length);
+        }
+        renderFavorites();
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+      }
+    }
+    
+    // Save favorites to localStorage
+    function saveFavorites() {
+      try {
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        debugLog("Favorites saved to localStorage");
+      } catch (error) {
+        console.error("Error saving favorites:", error);
+      }
+    }
+    
+    // Add a note to favorites
+    function addToFavorites(noteId, noteType) {
+      try {
+        debugLog("Adding note to favorites:", noteId, noteType);
+        
+        // Check if already in favorites
+        const existingIndex = favorites.findIndex(f => f.id === noteId && f.type === noteType);
+        if (existingIndex !== -1) {
+          debugLog("Note already in favorites");
+          return;
+        }
+        
+        let note = null;
+        
+        // Find the note based on type
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+        }
+        
+        if (note) {
+          // Add to favorites
+          favorites.push({
+            id: noteId,
+            type: noteType,
+            content: note.content,
+            timestamp: note.timestamp,
+            notebookId: noteType === 'regular' ? currentNotebookId : null,
+            notebookTitle: noteType === 'regular' ? notebooks.find(nb => nb.id === currentNotebookId)?.title : null
+          });
+          
+          saveFavorites();
+          renderFavorites();
+          
+          // Update UI to show favorite status
+          updateNoteFavoriteStatus(noteId, noteType, true);
+          
+          showToast('Added to Favorites', 'Note has been added to your favorites.', 'star');
+          debugLog("Note added to favorites successfully");
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error adding to favorites:", error);
+      }
+    }
+    
+    // Remove a note from favorites
+    function removeFromFavorites(noteId, noteType) {
+      try {
+        debugLog("Removing note from favorites:", noteId, noteType);
+        
+        // Remove from favorites array
+        favorites = favorites.filter(f => !(f.id === noteId && f.type === noteType));
+        
+        saveFavorites();
+        renderFavorites();
+        
+        // Update UI to show non-favorite status
+        updateNoteFavoriteStatus(noteId, noteType, false);
+        
+        showToast('Removed from Favorites', 'Note has been removed from your favorites.', 'star');
+        debugLog("Note removed from favorites successfully");
+      } catch (error) {
+        console.error("Error removing from favorites:", error);
+      }
+    }
+    
+    // Update note UI to show favorite status
+    function updateNoteFavoriteStatus(noteId, noteType, isFavorite) {
+      try {
+        let noteElement = null;
+        
+        if (noteType === 'regular') {
+          noteElement = document.querySelector(`#notes-list .note[data-id="${noteId}"]`);
+        } else if (noteType === 'locked') {
+          noteElement = document.querySelector(`#locked-notes-list .note[data-id="${noteId}"]`);
+        }
+        
+        if (noteElement) {
+          const favoriteBtn = noteElement.querySelector('.favorite-note');
+          
+          if (isFavorite) {
+            noteElement.classList.add('favorite');
+            if (favoriteBtn) {
+              favoriteBtn.innerHTML = '<i class="fas fa-star"></i>';
+              favoriteBtn.title = 'Remove from favorites';
+            }
+          } else {
+            noteElement.classList.remove('favorite');
+            if (favoriteBtn) {
+              favoriteBtn.innerHTML = '<i class="far fa-star"></i>';
+              favoriteBtn.title = 'Add to favorites';
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error updating note favorite status:", error);
+      }
+    }
+    
+    // Check if a note is in favorites
+    function isInFavorites(noteId, noteType) {
+      return favorites.some(f => f.id === noteId && f.type === noteType);
+    }
+    
+    // Render favorites list
+    function renderFavorites() {
+      try {
+        debugLog("Rendering favorites");
+        const favoritesList = document.getElementById('favorites-list');
+        if (!favoritesList) {
+          console.error("Favorites list element not found");
+          return;
+        }
+        
+        favoritesList.innerHTML = '';
+        
+        if (favorites.length === 0) {
+          favoritesList.innerHTML = '<div class="favorites-empty">No favorite notes yet. Add notes to favorites from other sections.</div>';
+          return;
+        }
+        
+        // Sort favorites by timestamp (newest first)
+        const sortedFavorites = [...favorites].sort((a, b) => {
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          return dateB - dateA;
+        });
+        
+        sortedFavorites.forEach(favorite => {
+          const noteEl = document.createElement('div');
+          noteEl.className = 'card note favorite';
+          noteEl.setAttribute('data-id', favorite.id);
+          noteEl.setAttribute('data-type', favorite.type);
+          
+          // Create source badge text
+          let sourceText = '';
+          if (favorite.type === 'regular' && favorite.notebookTitle) {
+            sourceText = `From: ${favorite.notebookTitle}`;
+          } else if (favorite.type === 'locked') {
+            sourceText = 'From: Locked Notes';
+          }
+          
+          noteEl.innerHTML = `
+            <div class="note-badges">
+              <span class="badge badge-success">Favorite</span>
+            </div>
+            <div class="note-actions">
+              <button class="btn btn-ghost btn-icon remove-favorite" title="Remove from favorites" data-id="${favorite.id}" data-type="${favorite.type}">
+                <i class="fas fa-star"></i>
+              </button>
+            </div>
+            <div class="card-content">
+              <p class="note-content">${favorite.content}</p>
+            </div>
+            <div class="card-footer">
+              <div style="display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
+                <span class="note-timestamp">${favorite.timestamp}</span>
+                ${sourceText ? `<span class="note-timestamp" style="margin-top: 0.25rem;">${sourceText}</span>` : ''}
+              </div>
+            </div>
+          `;
+          
+          // Remove from favorites
+          const removeBtn = noteEl.querySelector('.remove-favorite');
+          removeBtn.addEventListener('click', function() {
+            const noteId = parseInt(this.getAttribute('data-id'));
+            const noteType = this.getAttribute('data-type');
+            debugLog("Remove from favorites clicked:", noteId, noteType);
+            removeFromFavorites(noteId, noteType);
+          });
+          
+          favoritesList.appendChild(noteEl);
+        });
+        
+        debugLog("Favorites rendered successfully");
+      } catch (error) {
+        console.error("Error rendering favorites:", error);
+      }
+    }
+    
+    // Pin/unpin a note
+    function togglePinNote(noteId, noteType) {
+      try {
+        debugLog("Toggling pin status for note:", noteId, noteType);
+        
+        let note = null;
+        let notes = [];
+        
+        // Find the note based on type
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+            notes = notebook.notes;
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+          notes = lockedNotes;
+        }
+        
+        if (note) {
+          // Toggle pinned status
+          note.pinned = !note.pinned;
+          
+          // Save changes
+          if (noteType === 'regular') {
+            saveNotebooks();
+            renderNotes(notes);
+          } else if (noteType === 'locked') {
+            saveLockedNotes();
+            renderLockedNotes();
+          }
+          
+          const action = note.pinned ? 'pinned' : 'unpinned';
+          showToast(`Note ${action}`, `Note has been ${action}.`, note.pinned ? 'thumbtack' : 'check-circle');
+          debugLog(`Note ${action} successfully:`, noteId);
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error toggling pin status:", error);
+      }
+    }
+    
+    // Global search function
+    function performSearch(query) {
+      try {
+        debugLog("Performing search for:", query);
+        if (!query.trim()) {
+          document.getElementById('search-results').style.display = 'none';
+          return;
+        }
+        
+        const searchResults = [];
+        const lowerQuery = query.toLowerCase();
+        
+        // Search in notebooks and notes
+        notebooks.forEach(notebook => {
+          // Search in notebook titles
+          if (notebook.title.toLowerCase().includes(lowerQuery)) {
+            searchResults.push({
+              id: notebook.id,
+              title: notebook.title,
+              content: `Notebook with ${notebook.notes.length} notes`,
+              type: 'notebook'
+            });
+          }
+          
+          // Search in notes
+          notebook.notes.forEach(note => {
+            if (note.content.toLowerCase().includes(lowerQuery)) {
+              searchResults.push({
+                id: note.id,
+                notebookId: notebook.id,
+                notebookTitle: notebook.title,
+                title: `Note in ${notebook.title}`,
+                content: note.content,
+                type: 'note'
+              });
+            }
+          });
+        });
+        
+        // Search in checklist groups
+        checklistGroups.forEach(group => {
+          // Search in group titles
+          if (group.title.toLowerCase().includes(lowerQuery)) {
+            searchResults.push({
+              id: group.id,
+              title: group.title,
+              content: `Checklist group with ${group.checklists.length} checklists`,
+              type: 'checklistGroup'
+            });
+          }
+          
+          // Search in checklists
+          group.checklists.forEach(checklist => {
+            const checklistContent = checklist.items.join(', ');
+            if (checklistContent.toLowerCase().includes(lowerQuery)) {
+              searchResults.push({
+                id: checklist.id,
+                groupId: group.id,
+                groupTitle: group.title,
+                title: `Checklist in ${group.title}`,
+                content: checklistContent,
+                type: 'checklist'
+              });
+            }
+          });
+        });
+        
+        // Search in locked notes (only if unlocked)
+if (isLockedSectionUnlocked) {
+  lockedNotes.forEach(note => {
+    if (note.content.toLowerCase().includes(lowerQuery)) {
+      searchResults.push({
+        id: note.id,
+        title: 'Locked Note',
+        content: note.content,
+        type: 'lockedNote'
+      });
+    }
+  });
+}
+        // Search in image names
+        if (isImagesSectionUnlocked) {
+          images.forEach(image => {
+            if (image.name.toLowerCase().includes(lowerQuery)) {
+              searchResults.push({
+                id: image.id,
+                title: image.name,
+                content: `Image (${formatFileSize(image.size)})`,
+                type: 'image'
+              });
+            }
+          });
+        }
+        
+        // Display search results
+        displaySearchResults(searchResults);
+        debugLog("Search completed, found results:", searchResults.length);
+      } catch (error) {
+        console.error("Error performing search:", error);
+      }
+    }
+    
+    // Display search results
+    function displaySearchResults(results) {
+      try {
+        const searchResultsContainer = document.getElementById('search-results');
+        
+        if (results.length === 0) {
+          searchResultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+          searchResultsContainer.style.display = 'block';
+          return;
+        }
+        
+        searchResultsContainer.innerHTML = '';
+        
+        results.forEach(result => {
+          const resultItem = document.createElement('div');
+          resultItem.className = 'search-result-item';
+          resultItem.innerHTML = `
+            <div class="search-result-title">${result.title}</div>
+            <div class="search-result-content">${result.content}</div>
+            <div class="search-result-type">${formatResultType(result.type)}</div>
+          `;
+          
+          // Add click event to navigate to the result
+          resultItem.addEventListener('click', function() {
+            navigateToSearchResult(result);
+          });
+          
+          searchResultsContainer.appendChild(resultItem);
+        });
+        
+        searchResultsContainer.style.display = 'block';
+      } catch (error) {
+        console.error("Error displaying search results:", error);
+      }
+    }
+    
+    // Format result type for display
+    function formatResultType(type) {
+      switch (type) {
+        case 'notebook': return 'Notebook';
+        case 'note': return 'Note';
+        case 'checklistGroup': return 'Checklist Group';
+        case 'checklist': return 'Checklist';
+        case 'lockedNote': return 'Locked Note';
+        case 'image': return 'Image';
+        default: return type;
+      }
+    }
+    
+    // Navigate to a search result
+    function navigateToSearchResult(result) {
+      try {
+        debugLog("Navigating to search result:", result);
+        
+        // Clear search
+        document.getElementById('global-search').value = '';
+        document.getElementById('search-results').style.display = 'none';
+        
+        // Navigate based on result type
+        switch (result.type) {
+          case 'notebook':
+            switchTab('regular');
+            openNotebook(result.id);
+            break;
+            
+          case 'note':
+            switchTab('regular');
+            openNotebook(result.notebookId);
+            // Highlight the note
+            setTimeout(() => {
+              const noteElement = document.querySelector(`#notes-list .note[data-id="${result.id}"]`);
+              if (noteElement) {
+                noteElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                noteElement.style.animation = 'highlight 2s';
+              }
+            }, 300);
+            break;
+            
+          case 'checklistGroup':
+            switchTab('checklists');
+            openChecklistGroup(result.id);
+            break;
+            
+          case 'checklist':
+            switchTab('checklists');
+            openChecklistGroup(result.groupId);
+            // Highlight the checklist
+            setTimeout(() => {
+              const checklistElement = document.querySelector(`#checklists-list .note[data-id="${result.id}"]`);
+              if (checklistElement) {
+                checklistElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                checklistElement.style.animation = 'highlight 2s';
+              }
+            }, 300);
+            break;
+            
+          case 'lockedNote':
+            switchTab('locked');
+            if (!isLockedSectionUnlocked) {
+              showToast('Locked Section', 'Please unlock the locked notes section first.', 'lock');
+              return;
+            }
+            // Highlight the locked note
+            setTimeout(() => {
+              const noteElement = document.querySelector(`#locked-notes-list .note[data-id="${result.id}"]`);
+              if (noteElement) {
+                noteElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                noteElement.style.animation = 'highlight 2s';
+              }
+            }, 300);
+            break;
+            
+          case 'image':
+            switchTab('images');
+            if (!isImagesSectionUnlocked) {
+              showToast('Images Section', 'Please unlock the images section first.', 'lock');
+              return;
+            }
+            // Highlight the image
+            setTimeout(() => {
+              const imageElement = document.querySelector(`#images-list .image-card[data-id="${result.id}"]`);
+              if (imageElement) {
+                imageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                imageElement.style.animation = 'highlight 2s';
+              }
+            }, 300);
+            break;
+        }
+        
+        debugLog("Navigation to search result completed");
+      } catch (error) {
+        console.error("Error navigating to search result:", error);
+      }
+    }
+    
+    // Format file size
+    function formatFileSize(size) {
+      if (!size) return '';
+      return size < 1024 * 1024 ? 
+        `${(size / 1024).toFixed(1)} KB` : 
+        `${(size / 1024 / 1024).toFixed(1)} MB`;
+    }
+    
+    // Count words in text
+    function countWords(text) {
+      if (!text || typeof text !== 'string') return 0;
+      return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }
+    
     
     // Save current session state
     function saveSessionState() {
@@ -1314,7 +2033,8 @@
           lockedNotes: lockedNotes,
           images: images,
           hasSetPassword: hasSetPassword,
-          lockedPassword: lockedPassword
+          lockedPassword: lockedPassword,
+          favorites: favorites
         };
         
         const dataStr = JSON.stringify(data);
@@ -1345,7 +2065,7 @@
     }
 
     // Show toast notification
-    function showToast(title, message, icon = 'check-circle', duration = 10000) {
+    function showToast(title, message, icon = 'check-circle', duration = 1500) {
       try {
         const toast = document.getElementById('toast-notification');
         const toastTitle = toast.querySelector('.toast-title');
@@ -1387,6 +2107,16 @@
       try {
         debugLog("Setting up event listeners");
         
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+          toggleTheme();
+        });
+        
+        
+       
+        
+        
+        
         // Tab navigation
         const tabButtons = document.querySelectorAll('.tab');
         debugLog("Found tab buttons:", tabButtons.length);
@@ -1426,7 +2156,7 @@
           saveEditedNote();
         });
 
-        // Checklists - Completely rewritten event listeners
+        // Checklists
         document.getElementById('create-checklist-group').addEventListener('click', function() {
           debugLog("Create checklist group button clicked");
           createChecklistGroup();
@@ -1587,7 +2317,7 @@
           return; // Not a significant swipe
         }
         
-        const tabs = ['regular', 'checklists', 'locked', 'images'];
+        const tabs = ['regular', 'checklists', 'locked', 'images', 'favorites'];
         const currentTabIndex = tabs.indexOf(currentTab);
         
         if (swipeDistance > 0) {
@@ -1666,12 +2396,14 @@
                 {
                   id: 1,
                   content: 'Meeting with team at 2pm',
-                  timestamp: '15/01/2023, 15:30:00'
+                  timestamp: '15/01/2023, 15:30:00',
+                  pinned: false
                 },
                 {
                   id: 2,
                   content: 'Project deadline on Friday',
-                  timestamp: '16/01/2023, 20:00:00'
+                  timestamp: '16/01/2023, 20:00:00',
+                  pinned: true
                 }
               ]
             },
@@ -1682,7 +2414,8 @@
                 {
                   id: 3,
                   content: 'Buy groceries',
-                  timestamp: '17/01/2023, 10:15:00'
+                  timestamp: '17/01/2023, 10:15:00',
+                  pinned: false
                 }
               ]
             }
@@ -1853,15 +2586,47 @@
           return;
         }
         
-        notes.forEach(note => {
+        // Sort notes: pinned first, then by timestamp (newest first)
+        const sortedNotes = [...notes].sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          return dateB - dateA;
+        });
+        
+        sortedNotes.forEach(note => {
           const noteEl = document.createElement('div');
-          noteEl.className = 'card note';
+          noteEl.className = note.pinned ? 'card note pinned' : 'card note';
+          noteEl.setAttribute('data-id', note.id);
+          
+          
+          // Check if note is in favorites
+          const isFavorite = isInFavorites(note.id, 'regular');
+          if (isFavorite) {
+            noteEl.classList.add('favorite');
+          }
+          
+          // Create badges for pinned and favorite status
+          let badgesHTML = '';
+          if (note.pinned) {
+            badgesHTML += '<span class="badge badge-warning">Pinned</span>';
+          }
+          
           noteEl.innerHTML = `
+            ${badgesHTML ? `<div class="note-badges">${badgesHTML}</div>` : ''}
             <div class="note-actions">
-              <button class="btn btn-ghost btn-icon edit-note" data-id="${note.id}">
+              <button class="btn btn-ghost btn-icon pin-note" title="${note.pinned ? 'Unpin note' : 'Pin note'}" data-id="${note.id}">
+                <i class="fas ${note.pinned ? 'fa-thumbtack' : 'fa-thumbtack'}"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon favorite-note" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}" data-id="${note.id}">
+                <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon edit-note" title="Edit note" data-id="${note.id}">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-ghost btn-icon delete-note" data-id="${note.id}">
+              <button class="btn btn-ghost btn-icon delete-note" title="Delete note" data-id="${note.id}">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -1869,7 +2634,12 @@
               <p class="note-content">${note.content}</p>
             </div>
             <div class="card-footer">
-              <span class="note-timestamp">${note.timestamp}</span>
+              <div style="width: 100%;">
+                <span class="note-timestamp">${note.timestamp}</span>
+                <div class="note-stats">
+                 
+                </div>
+              </div>
             </div>
           `;
           
@@ -1885,6 +2655,24 @@
           editBtn.addEventListener('click', function() {
             debugLog("Edit note clicked:", note.id);
             openEditNoteModal(note.id, 'regular');
+          });
+          
+          // Pin/unpin note
+          const pinBtn = noteEl.querySelector('.pin-note');
+          pinBtn.addEventListener('click', function() {
+            debugLog("Pin/unpin note clicked:", note.id);
+            togglePinNote(note.id, 'regular');
+          });
+          
+          // Add/remove from favorites
+          const favoriteBtn = noteEl.querySelector('.favorite-note');
+          favoriteBtn.addEventListener('click', function() {
+            debugLog("Favorite note clicked:", note.id);
+            if (isFavorite) {
+              removeFromFavorites(note.id, 'regular');
+            } else {
+              addToFavorites(note.id, 'regular');
+            }
           });
           
           notesList.appendChild(noteEl);
@@ -1916,6 +2704,10 @@
           document.getElementById('edit-note-id').value = noteId;
           document.getElementById('edit-note-type').value = noteType;
           document.getElementById('edit-note-modal').style.display = 'flex';
+          
+          // Update word counter
+          updateWordCounter(note.content, 'edit-note-counter');
+          
           debugLog("Edit note modal opened successfully");
         } else {
           console.error("Note not found:", noteId);
@@ -1947,6 +2739,10 @@
               note.timestamp = new Date().toLocaleString() + ' (edited)';
               saveNotebooks();
               renderNotes(notebook.notes);
+              
+              // Update in favorites if exists
+              updateFavoriteContent(noteId, noteType, newContent);
+              
               debugLog("Regular note edited successfully");
             }
           }
@@ -1957,6 +2753,10 @@
             note.timestamp = new Date().toLocaleString() + ' (edited)';
             saveLockedNotes();
             renderLockedNotes();
+            
+            // Update in favorites if exists
+            updateFavoriteContent(noteId, noteType, newContent);
+            
             debugLog("Locked note edited successfully");
           }
         }
@@ -1965,6 +2765,22 @@
         document.getElementById('edit-note-modal').style.display = 'none';
       } catch (error) {
         console.error("Error saving edited note:", error);
+      }
+    }
+    
+    // Update content in favorites if the note exists there
+    function updateFavoriteContent(noteId, noteType, newContent) {
+      try {
+        const favoriteIndex = favorites.findIndex(f => f.id === noteId && f.type === noteType);
+        if (favoriteIndex !== -1) {
+          favorites[favoriteIndex].content = newContent;
+          favorites[favoriteIndex].timestamp = new Date().toLocaleString() + ' (edited)';
+          saveFavorites();
+          renderFavorites();
+          debugLog("Updated content in favorites");
+        }
+      } catch (error) {
+        console.error("Error updating favorite content:", error);
       }
     }
 
@@ -1984,7 +2800,8 @@
           const newNote = {
             id: Date.now(),
             content: content,
-            timestamp: new Date().toLocaleString()
+            timestamp: new Date().toLocaleString(),
+            pinned: false
           };
           
           notebook.notes.push(newNote);
@@ -1992,6 +2809,9 @@
           renderNotes(notebook.notes);
           
           noteContentInput.value = '';
+          // Reset word counter
+          updateWordCounter('', 'note-counter');
+          
           debugLog("Note added successfully:", newNote.id);
         } else {
           console.error("Current notebook not found");
@@ -2011,6 +2831,15 @@
             notebook.notes = notebook.notes.filter(note => note.id !== noteId);
             saveNotebooks();
             renderNotes(notebook.notes);
+            
+            // Also remove from favorites if it exists there
+            const favoriteIndex = favorites.findIndex(f => f.id === noteId && f.type === 'regular');
+            if (favoriteIndex !== -1) {
+              favorites.splice(favoriteIndex, 1);
+              saveFavorites();
+              renderFavorites();
+            }
+            
             debugLog("Note deleted successfully");
           } else {
             console.error("Current notebook not found");
@@ -2026,6 +2855,20 @@
       try {
         debugLog("Deleting notebook:", notebookId);
         if (confirm('Are you sure you want to delete this notebook and all its notes?')) {
+          const notebook = notebooks.find(nb => nb.id === notebookId);
+          
+          if (notebook) {
+            // Remove all notes in this notebook from favorites
+            notebook.notes.forEach(note => {
+              const favoriteIndex = favorites.findIndex(f => f.id === note.id && f.type === 'regular');
+              if (favoriteIndex !== -1) {
+                favorites.splice(favoriteIndex, 1);
+              }
+            });
+            saveFavorites();
+            renderFavorites();
+          }
+          
           notebooks = notebooks.filter(notebook => notebook.id !== notebookId);
           saveNotebooks();
           renderNotebooks();
@@ -2036,7 +2879,7 @@
       }
     }
 
-    // ===== CHECKLIST FUNCTIONS ===== (COMPLETELY REWRITTEN)
+    // ===== CHECKLIST FUNCTIONS =====
     
     // Load checklist groups from localStorage
     function loadChecklistGroups() {
@@ -2139,7 +2982,7 @@
       }
     }
 
-    // Create a new checklist group - COMPLETELY REWRITTEN
+    // Create a new checklist group
     function createChecklistGroup() {
       try {
         debugLog("Creating new checklist group");
@@ -2233,6 +3076,7 @@
         checklists.forEach(checklist => {
           const checklistEl = document.createElement('div');
           checklistEl.className = 'card note';
+          checklistEl.setAttribute('data-id', checklist.id);
           
           let itemsHTML = '';
           checklist.items.forEach((item, index) => {
@@ -2244,6 +3088,11 @@
             `;
           });
           
+          // Calculate completion percentage
+          const totalItems = checklist.items.length;
+          const completedItems = checklist.checked.filter(Boolean).length;
+          const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+          
           checklistEl.innerHTML = `
             <div class="note-actions">
               <button class="btn btn-ghost btn-icon delete-checklist" data-id="${checklist.id}">
@@ -2254,7 +3103,12 @@
               ${itemsHTML}
             </div>
             <div class="card-footer">
-              <span class="note-timestamp">${checklist.timestamp}</span>
+              <div style="width: 100%;">
+                <span class="note-timestamp">${checklist.timestamp}</span>
+                <div class="note-stats">
+                  <span>${completedItems}/${totalItems} completed (${completionPercentage}%)</span>
+                </div>
+              </div>
             </div>
           `;
           
@@ -2312,6 +3166,9 @@
           renderChecklists(group.checklists);
           
           checklistItemsInput.value = '';
+          // Reset word counter
+          updateWordCounter('', 'checklist-counter');
+          
           debugLog("Checklist added successfully:", newChecklist.id);
         } else {
           console.error("Current checklist group not found");
@@ -2331,6 +3188,20 @@
           if (checklist) {
             checklist.checked[itemIndex] = isChecked;
             saveChecklistGroups();
+            
+            // Update completion percentage
+            const checklistElement = document.querySelector(`#checklists-list .note[data-id="${checklistId}"]`);
+            if (checklistElement) {
+              const totalItems = checklist.items.length;
+              const completedItems = checklist.checked.filter(Boolean).length;
+              const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+              
+              const statsElement = checklistElement.querySelector('.note-stats span');
+              if (statsElement) {
+                statsElement.textContent = `${completedItems}/${totalItems} completed (${completionPercentage}%)`;
+              }
+            }
+            
             debugLog("Checklist item toggled successfully");
           } else {
             console.error("Checklist not found:", checklistId);
@@ -2506,7 +3377,7 @@
       }
     }
 
-    // Unlock the images section - New function
+    // Unlock the images section
     function unlockImages() {
       try {
         debugLog("Unlocking images section");
@@ -2551,15 +3422,46 @@
           return;
         }
         
-        lockedNotes.forEach(note => {
+        // Sort notes: pinned first, then by timestamp (newest first)
+        const sortedNotes = [...lockedNotes].sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          return dateB - dateA;
+        });
+        
+        sortedNotes.forEach(note => {
           const noteEl = document.createElement('div');
-          noteEl.className = 'card note';
+          noteEl.className = note.pinned ? 'card note pinned' : 'card note';
+          noteEl.setAttribute('data-id', note.id);
+          
+          // Check if note is in favorites
+          const isFavorite = isInFavorites(note.id, 'locked');
+          if (isFavorite) {
+            noteEl.classList.add('favorite');
+          }
+          
+          // Create badges for pinned and favorite status
+          let badgesHTML = '';
+          if (note.pinned) {
+            badgesHTML += '<span class="badge badge-warning">Pinned</span>';
+          }
+          
           noteEl.innerHTML = `
+            ${badgesHTML ? `<div class="note-badges">${badgesHTML}</div>` : ''}
             <div class="note-actions">
-              <button class="btn btn-ghost btn-icon edit-locked-note" data-id="${note.id}">
+              <button class="btn btn-ghost btn-icon pin-note" title="${note.pinned ? 'Unpin note' : 'Pin note'}" data-id="${note.id}">
+                <i class="fas ${note.pinned ? 'fa-thumbtack' : 'fa-thumbtack'}"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon favorite-note" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}" data-id="${note.id}">
+                <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon edit-locked-note" title="Edit note" data-id="${note.id}">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-ghost btn-icon delete-locked-note" data-id="${note.id}">
+              <button class="btn btn-ghost btn-icon delete-locked-note" title="Delete note" data-id="${note.id}">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -2567,7 +3469,13 @@
               <p class="note-content">${note.content}</p>
             </div>
             <div class="card-footer">
-              <span class="note-timestamp">${note.timestamp}</span>
+              <div style="width: 100%;">
+                <span class="note-timestamp">${note.timestamp}</span>
+                <div class="note-stats">
+                  <span>${note.content.length} characters</span>
+                  <span>${countWords(note.content)} words</span>
+                </div>
+              </div>
             </div>
           `;
           
@@ -2583,6 +3491,24 @@
           editBtn.addEventListener('click', function() {
             debugLog("Edit locked note clicked:", note.id);
             openEditNoteModal(note.id, 'locked');
+          });
+          
+          // Pin/unpin note
+          const pinBtn = noteEl.querySelector('.pin-note');
+          pinBtn.addEventListener('click', function() {
+            debugLog("Pin/unpin note clicked:", note.id);
+            togglePinNote(note.id, 'locked');
+          });
+          
+          // Add/remove from favorites
+          const favoriteBtn = noteEl.querySelector('.favorite-note');
+          favoriteBtn.addEventListener('click', function() {
+            debugLog("Favorite note clicked:", note.id);
+            if (isFavorite) {
+              removeFromFavorites(note.id, 'locked');
+            } else {
+              addToFavorites(note.id, 'locked');
+            }
           });
           
           lockedNotesList.appendChild(noteEl);
@@ -2608,7 +3534,8 @@
         const newNote = {
           id: Date.now(),
           content: content,
-          timestamp: new Date().toLocaleString()
+          timestamp: new Date().toLocaleString(),
+          pinned: false
         };
         
         lockedNotes.push(newNote);
@@ -2616,6 +3543,9 @@
         renderLockedNotes();
         
         lockedNoteContentInput.value = '';
+        // Reset word counter
+        updateWordCounter('', 'locked-note-counter');
+        
         debugLog("Locked note added successfully:", newNote.id);
       } catch (error) {
         console.error("Error adding locked note:", error);
@@ -2630,6 +3560,15 @@
           lockedNotes = lockedNotes.filter(note => note.id !== noteId);
           saveLockedNotes();
           renderLockedNotes();
+          
+          // Also remove from favorites if it exists there
+          const favoriteIndex = favorites.findIndex(f => f.id === noteId && f.type === 'locked');
+          if (favoriteIndex !== -1) {
+            favorites.splice(favoriteIndex, 1);
+            saveFavorites();
+            renderFavorites();
+          }
+          
           debugLog("Locked note deleted successfully");
         }
       } catch (error) {
@@ -2868,6 +3807,7 @@
             
           const imageEl = document.createElement('div');
           imageEl.className = 'card image-card';
+          imageEl.setAttribute('data-id', image.id);
           imageEl.innerHTML = `
             <img src="${image.src}" alt="${image.name}" class="view-image" data-id="${image.id}">
             <div class="card-footer">
@@ -3040,7 +3980,8 @@
           lockedNotes: lockedNotes,
           images: images,
           hasSetPassword: hasSetPassword,
-          lockedPassword: lockedPassword
+          lockedPassword: lockedPassword,
+          favorites: favorites
         };
         
         const dataStr = JSON.stringify(data);
@@ -3105,15 +4046,18 @@
               notebooks = data.notebooks;
               checklistGroups = data.checklistGroups;
               lockedNotes = data.lockedNotes || [];
+              favorites = data.favorites || [];
               
               // Save to localStorage
               saveNotebooks();
               saveChecklistGroups();
               saveLockedNotes();
+              saveFavorites();
               
               // Update UI for non-image data
               renderNotebooks();
               renderChecklistGroups();
+              renderFavorites();
               
               progressBar.style.width = '50%';
               document.querySelector('.loading-text').textContent = 'Processing images...';
