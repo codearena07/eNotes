@@ -307,6 +307,12 @@
     .note.favorite {
       border-left: 3px solid var(--success);
     }
+    
+    /* Timer expired note style */
+    .note.expired {
+      opacity: 0.6;
+      border-left: 3px solid var(--danger);
+    }
 
     .note-content {
       white-space: pre-wrap;
@@ -348,6 +354,10 @@
 
     .badge-success {
       background-color: var(--success);
+    }
+    
+    .badge-danger {
+      background-color: var(--danger);
     }
 
     .note-stats {
@@ -725,6 +735,23 @@
       width: 0%;
       transition: width 0.3s ease;
     }
+    
+    /* Timer progress bar */
+    .timer-progress-container {
+      width: 100%;
+      background-color: var(--border-color);
+      border-radius: 0.25rem;
+      margin-top: 0.5rem;
+      overflow: hidden;
+      height: 0.5rem;
+    }
+    
+    .timer-progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
 
     /* Debug panel */
     .debug-panel {
@@ -874,6 +901,33 @@
       text-align: center;
       color: var(--text-secondary);
       padding: 1rem;
+    }
+   
+
+       /* Timer modal styles */
+       .datetime-input {
+      margin-bottom: 1rem;
+    }
+
+    .datetime-label {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Timer countdown display */
+    .timer-countdown {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      text-align: center;
+    }
+
+    /* Animation for expired notes */
+    @keyframes highlight {
+      0% { background-color: rgba(239, 68, 68, 0.2); }
+      100% { background-color: transparent; }
     }
   </style>
 </head>
@@ -1233,6 +1287,31 @@
     </div>
   </div>
 
+  <!-- Set Timer Modal (New) -->
+  <div id="set-timer-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Set Note Timer</h3>
+        <button class="modal-close" id="set-timer-modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem;">
+          Set a date and time when this note will expire. The note will gradually fade as the deadline approaches.
+        </p>
+        <div class="datetime-input">
+          <label class="datetime-label">Expiration Date and Time</label>
+          <input type="datetime-local" id="timer-datetime" class="w-full">
+        </div>
+        <input type="hidden" id="timer-note-id">
+        <input type="hidden" id="timer-note-type">
+      </div>
+      <div class="modal-footer">
+        <button id="remove-timer" class="btn btn-ghost">Remove Timer</button>
+        <button id="save-timer" class="btn btn-primary">Set Timer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Fullscreen Image Viewer -->
   <div id="fullscreen-image-viewer" class="fullscreen-image">
     <button id="fullscreen-close" class="fullscreen-close">
@@ -1274,6 +1353,14 @@
     const STORAGE_NOTEBOOK_VIEW = 'eNotes_notebookView';
     const STORAGE_CHECKLIST_VIEW = 'eNotes_checklistView';
     const STORAGE_THEME = 'eNotes_theme';
+    
+    // Timer interval for updating progress bars
+    // Timer interval for updating progress bars
+let timerInterval = setInterval(() => {
+    // Yahan aap progress bar update karne ka code likhoge
+    updateProgressBars(); // example function
+}, 1000); // 1000 milliseconds = 1 second
+
 
     // Debug logging function
     function debugLog(message, data = null) {
@@ -1373,6 +1460,9 @@
         // Restore previous session state
         restoreSessionState();
         
+        // Start timer interval for updating progress bars
+        startTimerInterval();
+        
         debugLog("App initialized successfully");
       } catch (error) {
         console.error("Error initializing app:", error);
@@ -1380,6 +1470,157 @@
       }
     }
     
+   // Start timer interval for updating progress bars
+function startTimerInterval() {
+  // Clear any existing interval
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+  
+  // Update timer progress bars every second (1000ms) for real-time updates
+  timerInterval = setInterval(updateAllTimerProgressBars, 1000);
+  
+  // Also update immediately
+  updateAllTimerProgressBars();
+  
+  debugLog("Timer interval started");
+}
+
+// Update all timer progress bars
+function updateAllTimerProgressBars() {
+  try {
+    debugLog("Updating all timer progress bars");
+    
+    // Update regular notes
+    let notesUpdated = false;
+    notebooks.forEach(notebook => {
+      notebook.notes.forEach(note => {
+        if (note.timerDate) {
+          const isExpired = updateNoteTimerProgress(note);
+          notesUpdated = true; // Always update to refresh the UI
+        }
+      });
+    });
+    
+    // Update locked notes
+    lockedNotes.forEach(note => {
+      if (note.timerDate) {
+        const isExpired = updateNoteTimerProgress(note);
+        notesUpdated = true; // Always update to refresh the UI
+      }
+    });
+    
+    // Re-render if any notes were updated
+    if (notesUpdated) {
+      if (currentNotebookId) {
+        const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+        if (notebook) {
+          renderNotes(notebook.notes);
+        }
+      }
+      
+      if (isLockedSectionUnlocked) {
+        renderLockedNotes();
+      }
+      
+      renderFavorites();
+      saveNotebooks();
+      saveLockedNotes();
+    }
+  } catch (error) {
+    console.error("Error updating timer progress bars:", error);
+  }
+}
+
+// Update a single note's timer progress
+function updateNoteTimerProgress(note) {
+  try {
+    if (!note.timerDate) return false;
+    
+    const now = new Date();
+    const deadline = new Date(note.timerDate);
+    const createdDate = new Date(note.timerCreated || now);
+    
+    // Calculate total duration and elapsed time
+    const totalDuration = deadline - createdDate;
+    const elapsedTime = now - createdDate;
+    
+    // Calculate progress (0 to 100)
+    // Fixed calculation to properly go from 0 to 100%
+    let progress = Math.min(100, Math.max(0, (elapsedTime / totalDuration) * 100));
+    
+    // Update note's timer progress
+    note.timerProgress = progress;
+    
+    // Calculate remaining time for countdown display
+    const remainingTime = Math.max(0, deadline - now);
+    note.remainingTime = formatRemainingTime(remainingTime);
+    
+    // Check if timer has expired
+    if (now >= deadline && !note.expired) {
+      note.expired = true;
+      return true; // Note was updated (expired)
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error updating note timer progress:", error);
+    return false;
+  }
+}
+
+// Format remaining time in a human-readable format (e.g., "2d 5h 30m 15s")
+function formatRemainingTime(milliseconds) {
+  if (milliseconds <= 0) {
+    return "Expired";
+  }
+  
+  const seconds = Math.floor((milliseconds / 1000) % 60);
+  const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+  const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
+  const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+  
+  let result = "";
+  if (days > 0) result += `${days}d `;
+  if (hours > 0 || days > 0) result += `${hours}h `;
+  if (minutes > 0 || hours > 0 || days > 0) result += `${minutes}m `;
+  result += `${seconds}s`;
+  
+  return result;
+}
+
+// Add this function to update the UI with the remaining time
+function updateTimerUI(noteElement, note) {
+  if (!note.timerDate) return;
+  
+  const progressBar = noteElement.querySelector('.timer-progress-bar');
+  const countdownDisplay = noteElement.querySelector('.timer-countdown');
+  
+  if (progressBar) {
+    progressBar.style.width = `${note.timerProgress}%`;
+    
+    // Change color based on progress
+    if (note.timerProgress >= 80) {
+      progressBar.style.backgroundColor = '#ff4d4d'; // Red when close to deadline
+    } else if (note.timerProgress >= 50) {
+      progressBar.style.backgroundColor = '#ffa64d'; // Orange for mid-progress
+    } else {
+      progressBar.style.backgroundColor = '#4CAF50'; // Green for early progress
+    }
+  }
+  
+  if (countdownDisplay) {
+    countdownDisplay.textContent = note.remainingTime;
+    
+    if (note.expired) {
+      countdownDisplay.classList.add('expired');
+    } else {
+      countdownDisplay.classList.remove('expired');
+    }
+  }
+}
+
+// Remember to call updateTimerUI for each note in your renderNotes function
     // Load theme preference
     function loadTheme() {
       try {
@@ -1478,7 +1719,11 @@
             content: note.content,
             timestamp: note.timestamp,
             notebookId: noteType === 'regular' ? currentNotebookId : null,
-            notebookTitle: noteType === 'regular' ? notebooks.find(nb => nb.id === currentNotebookId)?.title : null
+            notebookTitle: noteType === 'regular' ? notebooks.find(nb => nb.id === currentNotebookId)?.title : null,
+            timerDate: note.timerDate,
+            timerCreated: note.timerCreated,
+            timerProgress: note.timerProgress,
+            expired: note.expired
           });
           
           saveFavorites();
@@ -1583,6 +1828,9 @@
         sortedFavorites.forEach(favorite => {
           const noteEl = document.createElement('div');
           noteEl.className = 'card note favorite';
+          if (favorite.expired) {
+            noteEl.classList.add('expired');
+          }
           noteEl.setAttribute('data-id', favorite.id);
           noteEl.setAttribute('data-type', favorite.type);
           
@@ -1594,9 +1842,17 @@
             sourceText = 'From: Locked Notes';
           }
           
+          // Create badges HTML
+          let badgesHTML = '<span class="badge badge-success">Favorite</span>';
+          if (favorite.expired) {
+            badgesHTML += '<span class="badge badge-danger">Expired</span>';
+          } else if (favorite.timerDate) {
+            badgesHTML += '<span class="badge badge-warning">Timed</span>';
+          }
+          
           noteEl.innerHTML = `
             <div class="note-badges">
-              <span class="badge badge-success">Favorite</span>
+              ${badgesHTML}
             </div>
             <div class="note-actions">
               <button class="btn btn-ghost btn-icon remove-favorite" title="Remove from favorites" data-id="${favorite.id}" data-type="${favorite.type}">
@@ -1605,6 +1861,19 @@
             </div>
             <div class="card-content">
               <p class="note-content">${favorite.content}</p>
+              ${favorite.timerDate && !favorite.expired ? `
+                <div class="timer-progress-container">
+                  <div class="timer-progress-bar" style="width: ${favorite.timerProgress || 0}%"></div>
+                </div>
+                <div class="timer-countdown">
+                  Expires: ${new Date(favorite.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
+              ${favorite.expired ? `
+                <div class="timer-countdown" style="color: var(--danger);">
+                  Expired: ${new Date(favorite.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
             </div>
             <div class="card-footer">
               <div style="display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
@@ -1673,6 +1942,188 @@
         }
       } catch (error) {
         console.error("Error toggling pin status:", error);
+      }
+    }
+    
+    // Set timer for a note
+    function setNoteTimer(noteId, noteType, timerDate) {
+      try {
+        debugLog("Setting timer for note:", noteId, noteType, timerDate);
+        
+        let note = null;
+        
+        // Find the note based on type
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+        }
+        
+        if (note) {
+          // Set timer properties
+          note.timerDate = timerDate;
+          note.timerCreated = new Date().toISOString();
+          note.timerProgress = 0;
+          note.expired = false;
+          
+          // Save changes
+          if (noteType === 'regular') {
+            saveNotebooks();
+            const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+            if (notebook) {
+              renderNotes(notebook.notes);
+            }
+          } else if (noteType === 'locked') {
+            saveLockedNotes();
+            renderLockedNotes();
+          }
+          
+          // Update in favorites if exists
+          updateFavoriteTimer(noteId, noteType, timerDate);
+          
+          // Update timer progress immediately
+          updateAllTimerProgressBars();
+          
+          showToast('Timer Set', `Note will expire on ${new Date(timerDate).toLocaleString()}.`, 'clock');
+          debugLog("Timer set successfully for note:", noteId);
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error setting note timer:", error);
+      }
+    }
+    
+    // Remove timer from a note
+    function removeNoteTimer(noteId, noteType) {
+      try {
+        debugLog("Removing timer from note:", noteId, noteType);
+        
+        let note = null;
+        
+        // Find the note based on type
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+        }
+        
+        if (note) {
+          // Remove timer properties
+          delete note.timerDate;
+          delete note.timerCreated;
+          delete note.timerProgress;
+          delete note.expired;
+          
+          // Save changes
+          if (noteType === 'regular') {
+            saveNotebooks();
+            const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+            if (notebook) {
+              renderNotes(notebook.notes);
+            }
+          } else if (noteType === 'locked') {
+            saveLockedNotes();
+            renderLockedNotes();
+          }
+          
+          // Update in favorites if exists
+          removeFavoriteTimer(noteId, noteType);
+          
+          showToast('Timer Removed', 'Timer has been removed from the note.', 'clock');
+          debugLog("Timer removed successfully from note:", noteId);
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error removing note timer:", error);
+      }
+    }
+    
+    // Update timer in favorites if the note exists there
+    function updateFavoriteTimer(noteId, noteType, timerDate) {
+      try {
+        const favoriteIndex = favorites.findIndex(f => f.id === noteId && f.type === noteType);
+        if (favoriteIndex !== -1) {
+          favorites[favoriteIndex].timerDate = timerDate;
+          favorites[favoriteIndex].timerCreated = new Date().toISOString();
+          favorites[favoriteIndex].timerProgress = 0;
+          favorites[favoriteIndex].expired = false;
+          saveFavorites();
+          renderFavorites();
+          debugLog("Updated timer in favorites");
+        }
+      } catch (error) {
+        console.error("Error updating favorite timer:", error);
+      }
+    }
+    
+    // Remove timer from favorites if the note exists there
+    function removeFavoriteTimer(noteId, noteType) {
+      try {
+        const favoriteIndex = favorites.findIndex(f => f.id === noteId && f.type === noteType);
+        if (favoriteIndex !== -1) {
+          delete favorites[favoriteIndex].timerDate;
+          delete favorites[favoriteIndex].timerCreated;
+          delete favorites[favoriteIndex].timerProgress;
+          delete favorites[favoriteIndex].expired;
+          saveFavorites();
+          renderFavorites();
+          debugLog("Removed timer from favorites");
+        }
+      } catch (error) {
+        console.error("Error removing favorite timer:", error);
+      }
+    }
+    
+    // Open set timer modal
+    function openSetTimerModal(noteId, noteType) {
+      try {
+        debugLog("Opening set timer modal:", noteId, noteType);
+        
+        let note = null;
+        
+        // Find the note based on type
+        if (noteType === 'regular') {
+          const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+          if (notebook) {
+            note = notebook.notes.find(n => n.id === noteId);
+          }
+        } else if (noteType === 'locked') {
+          note = lockedNotes.find(n => n.id === noteId);
+        }
+        
+        if (note) {
+          document.getElementById('timer-note-id').value = noteId;
+          document.getElementById('timer-note-type').value = noteType;
+          
+          // Set default date to tomorrow
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(tomorrow.getHours(), 0, 0, 0);
+          
+          // If note already has a timer, use that date
+          if (note.timerDate) {
+            document.getElementById('timer-datetime').value = new Date(note.timerDate).toISOString().slice(0, 16);
+            document.getElementById('remove-timer').style.display = 'block';
+          } else {
+            document.getElementById('timer-datetime').value = tomorrow.toISOString().slice(0, 16);
+            document.getElementById('remove-timer').style.display = 'none';
+          }
+          
+          document.getElementById('set-timer-modal').style.display = 'flex';
+          debugLog("Set timer modal opened successfully");
+        } else {
+          console.error("Note not found:", noteId);
+        }
+      } catch (error) {
+        console.error("Error opening set timer modal:", error);
       }
     }
     
@@ -1927,6 +2378,19 @@ if (isLockedSectionUnlocked) {
       return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     }
     
+    // Update word counter
+    function updateWordCounter(text, counterId) {
+      try {
+        const counter = document.getElementById(counterId);
+        if (counter) {
+          const charCount = text.length;
+          const wordCount = countWords(text);
+          counter.textContent = `${charCount} characters, ${wordCount} words`;
+        }
+      } catch (error) {
+        console.error("Error updating word counter:", error);
+      }
+    }
     
     // Save current session state
     function saveSessionState() {
@@ -2112,11 +2576,6 @@ if (isLockedSectionUnlocked) {
           toggleTheme();
         });
         
-        
-       
-        
-        
-        
         // Tab navigation
         const tabButtons = document.querySelectorAll('.tab');
         debugLog("Found tab buttons:", tabButtons.length);
@@ -2154,6 +2613,22 @@ if (isLockedSectionUnlocked) {
         document.getElementById('save-edited-note').addEventListener('click', function() {
           debugLog("Save edited note button clicked");
           saveEditedNote();
+        });
+        
+        // Set Timer Modal
+        document.getElementById('set-timer-modal-close').addEventListener('click', function() {
+          debugLog("Set timer modal close button clicked");
+          document.getElementById('set-timer-modal').style.display = 'none';
+        });
+        
+        document.getElementById('save-timer').addEventListener('click', function() {
+          debugLog("Save timer button clicked");
+          saveNoteTimer();
+        });
+        
+        document.getElementById('remove-timer').addEventListener('click', function() {
+          debugLog("Remove timer button clicked");
+          removeTimer();
         });
 
         // Checklists
@@ -2304,6 +2779,53 @@ if (isLockedSectionUnlocked) {
       } catch (error) {
         console.error("Error setting up event listeners:", error);
         alert("There was an error setting up the app: " + error.message);
+      }
+    }
+    
+    // Save note timer
+    function saveNoteTimer() {
+      try {
+        debugLog("Saving note timer");
+        const noteId = parseInt(document.getElementById('timer-note-id').value);
+        const noteType = document.getElementById('timer-note-type').value;
+        const timerDate = document.getElementById('timer-datetime').value;
+        
+        if (!timerDate) {
+          alert('Please select a date and time');
+          return;
+        }
+        
+        // Convert to ISO string for storage
+        const timerDateISO = new Date(timerDate).toISOString();
+        
+        // Set the timer
+        setNoteTimer(noteId, noteType, timerDateISO);
+        
+        // Close modal
+        document.getElementById('set-timer-modal').style.display = 'none';
+        
+        debugLog("Note timer saved successfully");
+      } catch (error) {
+        console.error("Error saving note timer:", error);
+      }
+    }
+    
+    // Remove timer
+    function removeTimer() {
+      try {
+        debugLog("Removing timer");
+        const noteId = parseInt(document.getElementById('timer-note-id').value);
+        const noteType = document.getElementById('timer-note-type').value;
+        
+        // Remove the timer
+        removeNoteTimer(noteId, noteType);
+        
+        // Close modal
+        document.getElementById('set-timer-modal').style.display = 'none';
+        
+        debugLog("Timer removed successfully");
+      } catch (error) {
+        console.error("Error removing timer:", error);
       }
     }
     
@@ -2599,8 +3121,10 @@ if (isLockedSectionUnlocked) {
         sortedNotes.forEach(note => {
           const noteEl = document.createElement('div');
           noteEl.className = note.pinned ? 'card note pinned' : 'card note';
+          if (note.expired) {
+            noteEl.classList.add('expired');
+          }
           noteEl.setAttribute('data-id', note.id);
-          
           
           // Check if note is in favorites
           const isFavorite = isInFavorites(note.id, 'regular');
@@ -2613,10 +3137,18 @@ if (isLockedSectionUnlocked) {
           if (note.pinned) {
             badgesHTML += '<span class="badge badge-warning">Pinned</span>';
           }
+          if (note.expired) {
+            badgesHTML += '<span class="badge badge-danger">Expired</span>';
+          } else if (note.timerDate) {
+            badgesHTML += '<span class="badge badge-warning">Timed</span>';
+          }
           
           noteEl.innerHTML = `
             ${badgesHTML ? `<div class="note-badges">${badgesHTML}</div>` : ''}
             <div class="note-actions">
+              <button class="btn btn-ghost btn-icon timer-note" title="Set timer" data-id="${note.id}">
+                <i class="fas fa-clock"></i>
+              </button>
               <button class="btn btn-ghost btn-icon pin-note" title="${note.pinned ? 'Unpin note' : 'Pin note'}" data-id="${note.id}">
                 <i class="fas ${note.pinned ? 'fa-thumbtack' : 'fa-thumbtack'}"></i>
               </button>
@@ -2632,13 +3164,24 @@ if (isLockedSectionUnlocked) {
             </div>
             <div class="card-content">
               <p class="note-content">${note.content}</p>
+              ${note.timerDate && !note.expired ? `
+                <div class="timer-progress-container">
+                  <div class="timer-progress-bar" style="width: ${note.timerProgress || 0}%"></div>
+                </div>
+                <div class="timer-countdown">
+                  Expires: ${new Date(note.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
+              ${note.expired ? `
+                <div class="timer-countdown" style="color: var(--danger);">
+                  Expired: ${new Date(note.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
             </div>
             <div class="card-footer">
               <div style="width: 100%;">
                 <span class="note-timestamp">${note.timestamp}</span>
-                <div class="note-stats">
-                 
-                </div>
+               
               </div>
             </div>
           `;
@@ -2673,6 +3216,13 @@ if (isLockedSectionUnlocked) {
             } else {
               addToFavorites(note.id, 'regular');
             }
+          });
+          
+          // Set timer
+          const timerBtn = noteEl.querySelector('.timer-note');
+          timerBtn.addEventListener('click', function() {
+            debugLog("Timer note clicked:", note.id);
+            openSetTimerModal(note.id, 'regular');
           });
           
           notesList.appendChild(noteEl);
@@ -2809,8 +3359,7 @@ if (isLockedSectionUnlocked) {
           renderNotes(notebook.notes);
           
           noteContentInput.value = '';
-          // Reset word counter
-          updateWordCounter('', 'note-counter');
+          
           
           debugLog("Note added successfully:", newNote.id);
         } else {
@@ -3435,6 +3984,9 @@ if (isLockedSectionUnlocked) {
         sortedNotes.forEach(note => {
           const noteEl = document.createElement('div');
           noteEl.className = note.pinned ? 'card note pinned' : 'card note';
+          if (note.expired) {
+            noteEl.classList.add('expired');
+          }
           noteEl.setAttribute('data-id', note.id);
           
           // Check if note is in favorites
@@ -3448,10 +4000,18 @@ if (isLockedSectionUnlocked) {
           if (note.pinned) {
             badgesHTML += '<span class="badge badge-warning">Pinned</span>';
           }
+          if (note.expired) {
+            badgesHTML += '<span class="badge badge-danger">Expired</span>';
+          } else if (note.timerDate) {
+            badgesHTML += '<span class="badge badge-warning">Timed</span>';
+          }
           
           noteEl.innerHTML = `
             ${badgesHTML ? `<div class="note-badges">${badgesHTML}</div>` : ''}
             <div class="note-actions">
+              <button class="btn btn-ghost btn-icon timer-note" title="Set timer" data-id="${note.id}">
+                <i class="fas fa-clock"></i>
+              </button>
               <button class="btn btn-ghost btn-icon pin-note" title="${note.pinned ? 'Unpin note' : 'Pin note'}" data-id="${note.id}">
                 <i class="fas ${note.pinned ? 'fa-thumbtack' : 'fa-thumbtack'}"></i>
               </button>
@@ -3467,14 +4027,24 @@ if (isLockedSectionUnlocked) {
             </div>
             <div class="card-content">
               <p class="note-content">${note.content}</p>
+              ${note.timerDate && !note.expired ? `
+                <div class="timer-progress-container">
+                  <div class="timer-progress-bar" style="width: ${note.timerProgress || 0}%"></div>
+                </div>
+                <div class="timer-countdown">
+                  Expires: ${new Date(note.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
+              ${note.expired ? `
+                <div class="timer-countdown" style="color: var(--danger);">
+                  Expired: ${new Date(note.timerDate).toLocaleString()}
+                </div>
+              ` : ''}
             </div>
             <div class="card-footer">
               <div style="width: 100%;">
                 <span class="note-timestamp">${note.timestamp}</span>
-                <div class="note-stats">
-                  <span>${note.content.length} characters</span>
-                  <span>${countWords(note.content)} words</span>
-                </div>
+                
               </div>
             </div>
           `;
@@ -3511,6 +4081,13 @@ if (isLockedSectionUnlocked) {
             }
           });
           
+          // Set timer
+          const timerBtn = noteEl.querySelector('.timer-note');
+          timerBtn.addEventListener('click', function() {
+            debugLog("Timer note clicked:", note.id);
+            openSetTimerModal(note.id, 'locked');
+          });
+          
           lockedNotesList.appendChild(noteEl);
         });
         
@@ -3543,8 +4120,7 @@ if (isLockedSectionUnlocked) {
         renderLockedNotes();
         
         lockedNoteContentInput.value = '';
-        // Reset word counter
-        updateWordCounter('', 'locked-note-counter');
+       
         
         debugLog("Locked note added successfully:", newNote.id);
       } catch (error) {
@@ -3962,6 +4538,7 @@ if (isLockedSectionUnlocked) {
       }
     }
 
+   
     // ===== BACKUP/IMPORT FUNCTIONS =====
     
     // Backup all data to a JSON file
